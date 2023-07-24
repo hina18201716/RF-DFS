@@ -3,28 +3,10 @@
 \usepackage{upgreek}
 \usepackage[american]{circuitikz}
 \usepackage[letterpaper, landscape]{geometry}
-\usetikzlibrary{decorations.pathreplacing}
-\usetikzlibrary{patterns}
+\usetikzlibrary{fit}
 
-\tikzset{
-        hatch distance/.store in=\hatchdistance,
-        hatch distance=3.5pt,
-        hatch thickness/.store in=\hatchthickness,
-        hatch thickness=0pt
-    }
-\makeatletter
-\pgfdeclarepatternformonly[\hatchdistance,\hatchthickness]{flexible hatch}
-    {\pgfqpoint{0pt}{0pt}}
-    {\pgfqpoint{\hatchdistance}{\hatchdistance}}
-    {\pgfpoint{\hatchdistance-1pt}{\hatchdistance-1pt}}%
-    {
-        \pgfsetcolor{\tikz@pattern@color}
-        \pgfsetlinewidth{\hatchthickness}
-        \pgfpathmoveto{\pgfqpoint{0.5pt}{0.5pt}}
-        \pgfpathlineto{\pgfqpoint{\hatchdistance}{\hatchdistance}}
-        \pgfusepath{stroke}
-    }
-\makeatother
+\definecolor{myGreen}{HTML}{05a31d}
+\definecolor{myYellow}{HTML}{ffee03}
 
 \begin{document}
 
@@ -37,55 +19,113 @@
         -- cycle;
     \foreach \x in {0,1,...,9}
          \draw (NW) ++(\x,0) rectangle ++(1,-0.3) ++(-0.5, 0.15) node[]{\x};
-    \node [draw, anchor=south east, align=left, font=\Huge, inner sep=12pt] 
+    \node [draw, anchor=south east, align=left, font=\Huge, inner sep=12pt](title) 
         at(SE) {RF-DFS Wiring Diagram};
+    \node [anchor=south west, align=left](notes) 
+        at(title.north west) {
+            \underline{Notes:}\\
+            $\cdot$ All wires should be in the range of 12-26 AWG.\\
+            $\cdot$ The ACR9000 requires a 5-24 VDC \emph{Enable} input.\\
+            $\cdot$ The Aries e-brake (\color{red}BK\color{black}) requires a 24 VDC supply.
+            };
+    % Thickens title border and draws notes border
+    \draw (title.north east) rectangle (title.south west);
+    \draw (title.north east) rectangle (notes.north west);
 \end{tikzpicture}
 
+% Legend
 \begin{tikzpicture}[overlay, remember picture]
-    % ACR9000
-    \filldraw[fill=green!15] (current page.center)
-    ++ (-7, 5)
-    rectangle ++ (5, 3)
-    ++ (-2.5, 0) node[anchor=north]{ACR9000}
-    ++ (-2.5, -1) node[name=acrMains]{}
-    ++ (1, -2) node[name=acrEnable-]{}
-    ++ (0.5, 0) node[name=acrEnable+]{}
-    ++ (2, 0) node[name=acrCom1]{};
+    \draw[dashed] (SW) ++ (1, 1)
+    node(rectSW){}
+    rectangle ++ (8, 4.1)
+    ++ (-8, 0)
+    node(rectNW){};
+    
+    \draw (rectNW) ++ (0.5, -0.5)
+    node[anchor=west]{\underline{Legend}} ++ (0, -1)
+    to[qvprobe] ++ (1.5, 0) ++ (-1.5, -1)
+    to[iecconn] ++ (1.5, 0) ++ (-1.5, -1)
+    to[tmultiwire] ++ (1.5, 0) ++ (-1.5, -1);
 
-    % ACE9000 Inputs
+    \draw (rectNW) ++ (2, -1.5)
+    node[anchor=west]{DC Power Supply} ++ (0, -1)
+    node[anchor=west]{Connectorized Plug} ++ (0, -1)
+    node[anchor=west]{Multiple Cable Bus} ++ (0, -1);
+\end{tikzpicture}
+
+% ACR9000
+\begin{tikzpicture}[overlay, remember picture]
+    % Location and Size
+    \filldraw[fill=green!15] (current page.center)
+    ++ (-7, 3.5)
+    rectangle ++ (5, 3)
+    ++ (-2.5, 0) node[anchor=south]{ACR9000}
+    node[anchor=north]{Motor Controller}
+    ++ (-2.5, -1) node[name=acrMains]{}
+    ++ (0.5, -2) node[name=acrEnable-]{}
+    ++ (0.5, 0) node[name=acrEnable+]{}
+    ++ (1.75, 0) node[name=acrAxis0]{}
+    ++ (1.25, 0) node[name=acrAxis1]{};
+
+    % Inputs
     \draw (acrMains.west)
     node[iecconnshape, anchor=left, xscale=-1](acrMainsConn){}
     -- (acrMains.center)
     (acrMainsConn.right)
     to[tmultiwire] ++ (-2.5, 0)
     node[diamondpole]{}
-    node[anchor=south]{Wall Plug};
+    node[anchor=south]{To Wall Plug};
     \draw (acrMains)
-    node[anchor=west]{AC In};
+    node[anchor=west]{120 VAC};
 
-    \draw (acrEnable+)
-    node[inputarrow, rotate=90]{}
+    \draw[<-] (acrEnable+.center)
     |- ++ (-1, -2.5)
-    to[qvprobe, mirror, l=DC Power Supply, a=5-24 V, fill=cyan!20] ++ (-2, 0)
+    coordinate(p1);
+    \draw[->] (p1)
+    to[qvprobe, mirror, fill=cyan!20] ++ (-2, 0)
     -| ++ (-1, 1.5)
-    -| (acrEnable-)
-    node[inputarrow, rotate=90]{};
+    -| (acrEnable-.center);
     \draw (acrEnable-.center)
     node[anchor=south]{--};
     \draw (acrEnable+.center)
     node[anchor=south]{+};
     \draw (acrEnable-.north) ++ (0.25, 0.5)
     node[]{Enable};
+
+    \draw (acrAxis0.south)
+    node[iecconnshape, anchor=left, rotate=-90](acrAxis0Conn){}
+    -- (acrAxis0.center)
+    (acrAxis0Conn.right)
+    to[tmultiwire] ++ (0, -2)
+    node[diamondpole](p2){}
+    (p2.south) node[anchor=east, rotate=45]{To Azimuth Drive IO};
+    \draw (acrAxis0.north)
+    node[anchor=south]{Axis 0};
+    
+    \draw (acrAxis1.south)
+    node[iecconnshape, anchor=left, rotate=-90](acrAxis1Conn){}
+    -- (acrAxis1.center)
+    (acrAxis1Conn.right)
+    to[tmultiwire] ++ (0, -2)
+    node[diamondpole](p2){}
+    (p2.south) node[anchor=east, rotate=45]{To Elevation Drive IO};
+    \draw (acrAxis1.north)
+    node[anchor=south]{Axis 1};
+
 \end{tikzpicture}
 
+% Aries AR-04AE
 \begin{tikzpicture}[overlay, remember picture]
-    % Aries AR-04AE
-    \filldraw[fill=yellow!15] (current page.center)
-    ++ (5, 2)
+    % Location and Size
+    \filldraw[fill=yellow!20] (current page.center)
+    ++ (5, 0.5)
     rectangle ++ (4, 6)
-    ++ (-2, 0) node(ariesTopCenter){}
-    node[anchor=north]{Aries AR-04AE}
-    ++ (-2, -2) node[anchor=west]{\underline{Motor}}
+    ++ (-2, 0) node(ariesTopCenter){} % Center Node
+    node[anchor=south]{Aries AR-04AE}
+    node[anchor=north]{Motor Driver (x2)}
+
+    % Left side nodes
+    ++ (-2, -1.2) node[anchor=west]{\underline{Motor}}
     ++ (0, -0.5) node(U){}
     ++ (0, -0.5) node(V){}
     ++ (0, -0.5) node(W){}
@@ -98,8 +138,10 @@
     (ariesGNDl.east) node[pground, anchor=west, scale=0.7]{}
     (BK1) node[anchor=west]{BK}
     (BK2) node[anchor=west]{BK};
+
+    % Right side nodes
     \draw (ariesTopCenter)
-    ++ (2, -2)   node(R+){}
+    ++ (2, -1.2)   node(R+){}
     ++ (0, -0.5) node(R-){}
     ++ (0, -0.5) node(C2){}
     ++ (0, -0.5) node(C1){}
@@ -114,26 +156,56 @@
     (ariesGNDr.west) node[pground, anchor=east, scale=0.7]{}
     (L2) node[anchor=east]{L2}
     (L1) node[anchor=east]{L1};
+
+    % South side nodes
+    \draw (ariesTopCenter)
+    ++ (-0.75, -6)
+    node(ariesMtrFdbk){}
+    ++ (1.5, 0)
+    node(ariesMtrIO){};
     
     % Right side inputs
-
-
-
+    \draw[<-, color=myGreen] (ariesGNDr.center) -| ++ (1, -2)
+    node[anchor=east, rotate=90](ariesEarthText){Ground};
+    \draw[color=myYellow, dashed] (ariesGNDr.center) -| ++ (1, -2);
+    \draw[<-, color=blue] (L2.center) -| ++ (1.5, -1.5)
+    node[anchor=east, rotate=90](ariesNeutralText){Neutral};
+    \draw[<-, color=brown] (L1.center) -| ++ (2, -1)
+    node[anchor=east, rotate=90](ariesLiveText){Live};
+    \draw[<-, color=blue] (C2.center) -| ++ (1.5, -1.5)
+    node[circ]{};
+    \draw[<-, color=brown] (C1.center) -| ++ (2, -1.5)
+    node[circ]{};
+    % Bus
+    \draw (ariesNeutralText.east) ++ (0, -2)
+    node(ariesMainsBus){};
+    \draw
+    (ariesMainsBus.center) -| (ariesEarthText.west)
+    (ariesMainsBus.center) -| (ariesNeutralText.west)
+    (ariesMainsBus.center) -| (ariesLiveText.west)
+    (ariesMainsBus.center) to[tmultiwire] ++ (0, -1)
+    node[diamondpole](p2){};
+    \draw (p2.south) node[anchor=north]{To Wall Plug};
+    
     % Left side inputs
-    \draw[<-] (U.center) -| ++ (-1, -4)
+    \draw[<-] (U.center) -| ++ (-1, -3.5)
     node[anchor=east, rotate=90](w1){Wire 1};
-    \draw[<-] (V.center) -| ++ (-1.5, -3.5)
+    \draw[<-] (V.center) -| ++ (-1.5, -3)
     node[anchor=east, rotate=90](w2){Wire 2};
-    \draw[<-] (W.center) -| ++ (-2, -3)
+    \draw[<-] (W.center) -| ++ (-2, -2.5)
     node[anchor=east, rotate=90](w3){Wire 3};
-    \draw[<-, color=green!70!black!100] (ariesGNDl.center) -| ++ (-2.5, -2.5)
+    \draw[<-, color=myGreen] (ariesGNDl.center) -| ++ (-2.5, -2)
     node[anchor=east, rotate=90](gndtext){Ground};
-    \draw[<-, color=red] (BK1.center) -| ++ (-3, -2)
+    \draw[<-, color=red] (BK1.center) -| ++ (-3, -1.5)
     node[anchor=east, rotate=90](bk1text){BK};
-    \draw[color=blue, loosely dashed] (BK1.center) -| ++ (-3, -2);
-    \draw[<-, color=red] (BK2.center) -| ++ (-3.5, -1.5)
+    \draw[color=blue, loosely dashed] (BK1.center) -| ++ (-3, -1.5);
+    \draw[color=red](BK2.center) ++ (-3.5, -1)
     node[anchor=east, rotate=90](bk2text){BK};
-    \draw[color=blue, loosely dashed] (BK2.center) -| ++ (-3.5, -1.5);
+    \draw[<-, color=red] (BK2.center) -| ++ (-0.5, 3.5)
+    -- ++ (-1.2, 0)
+    node[qvprobeshape, anchor=left, xscale=-1, fill=cyan!20, color=black](VsourceDC){};
+    \draw[color=red] (VsourceDC.right) -| (bk2text.east);
+    \draw[color=blue, loosely dashed] (VsourceDC.right) -| (bk2text.east);
     % Bus
     \draw (w3.east) ++ (-0.25, -2)
     node(yellowBus){};
@@ -143,6 +215,31 @@
     (yellowBus.center) -| (gndtext.west)
     (yellowBus.center) -| (w1.west)
     (yellowBus.center) -| (w2.west)
-    (yellowBus.center) -| (w3.west);
+    (yellowBus.center) -| (w3.west)
+    (yellowBus.center) to[tmultiwire] ++ (0, -1)
+    node[diamondpole](p3){};
+    \draw (p3.south) node[anchor=north]{To Motor};
+
+    % Connectorized cables
+    \draw (ariesMtrFdbk.north)
+    node[anchor=south]{Feedback};
+    \draw (ariesMtrIO.north)
+    node[anchor=south]{IO};
+
+    \draw[color=yellow!60!orange!100] (ariesMtrFdbk.south)
+    node[iecconnshape, anchor=left, rotate=-90](ariesFdbkConn){}
+    -- (ariesMtrFdbk.center)
+    (ariesFdbkConn.right)
+    to[tmultiwire] ++ (0, -3)
+    node[diamondpole](p4){};
+    \draw (p4.south) node[anchor=east, rotate=45]{To Motor};
+    \draw (ariesMtrIO.south)
+    node[iecconnshape, anchor=left, rotate=-90](ariesIOConn){}
+    -- (ariesMtrIO.center)
+    (ariesIOConn.right)
+    to[tmultiwire] ++ (0, -3)
+    node[diamondpole](p5){}
+    (p5.south) node[anchor=east, rotate=45]{To Controller Axis};
 \end{tikzpicture}
+
 \end{document}

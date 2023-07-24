@@ -166,17 +166,8 @@ INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex\generic\iftex\iftex.sty
 INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex\latex\geometry\geometry.cfg
 INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex\latex\geometry\geometry.cfg
 INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex\latex\geometry\geometry.cfg
-INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex\generic\pgf\frontendlayer\tikz\libraries\tikzlibrarydecorations.pathreplacing.code.tex
-INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex\generic\pgf\frontendlayer\tikz\libraries\tikzlibrarydecorations.pathreplacing.code.tex
-INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex\generic\pgf\frontendlayer\tikz\libraries\tikzlibrarydecorations.code.tex
-INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex\generic\pgf\frontendlayer\tikz\libraries\tikzlibrarydecorations.code.tex
-INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex\generic\pgf\modules\pgfmoduledecorations.code.tex
-INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex\generic\pgf\libraries\decorations\pgflibrarydecorations.pathreplacing.code.tex
-INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex\generic\pgf\libraries\decorations\pgflibrarydecorations.pathreplacing.code.tex
-INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex\generic\pgf\frontendlayer\tikz\libraries\tikzlibrarypatterns.code.tex
-INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex\generic\pgf\frontendlayer\tikz\libraries\tikzlibrarypatterns.code.tex
-INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex\generic\pgf\libraries\pgflibrarypatterns.code.tex
-INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex\generic\pgf\libraries\pgflibrarypatterns.code.tex
+INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex\generic\pgf\frontendlayer\tikz\libraries\tikzlibraryfit.code.tex
+INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex\generic\pgf\frontendlayer\tikz\libraries\tikzlibraryfit.code.tex
 INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
 INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
 INPUT .\Wiring.aux
@@ -195,6 +186,7 @@ INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr17.t
 INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\euler\eurm10.tfm
 INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\euler\eurm7.tfm
 INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\euler\eurm5.tfm
+INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmti10.tfm
 OUTPUT Wiring.pdf
 INPUT C:\Users\rnguyen\AppData\Local\MiKTeX\fonts\map\pdftex\pdftex.map
 INPUT Wiring.aux
@@ -202,3 +194,7 @@ INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts
 INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr10.pfb
 INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr17.pfb
 INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr17.pfb
+INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy10.pfb
+INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy10.pfb
+INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmti10.pfb
+INPUT C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmti10.pfb

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 23.5) (preloaded format=pdflatex 2023.7.3)  21 JUL 2023 15:20
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 23.5) (preloaded format=pdflatex 2023.7.3)  24 JUL 2023 14:48
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -307,55 +307,41 @@ Package: iftex 2022/02/03 v1.0f TeX engine tests
 \Gm@layouthoffset=\dimen278
 \Gm@layoutvoffset=\dimen279
 \Gm@dimlist=\toks30
- (C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.cfg)) (C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibrarydecorations.pathreplacing.code.tex (C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibrarydecorations.code.tex (C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex/generic/pgf/modules\pgfmoduledecorations.code.tex
-\pgfdecoratedcompleteddistance=\dimen280
-\pgfdecoratedremainingdistance=\dimen281
-\pgfdecoratedinputsegmentcompleteddistance=\dimen282
-\pgfdecoratedinputsegmentremainingdistance=\dimen283
-\pgf@decorate@distancetomove=\dimen284
-\pgf@decorate@repeatstate=\count288
-\pgfdecorationsegmentamplitude=\dimen285
-\pgfdecorationsegmentlength=\dimen286
-)
-\tikz@lib@dec@box=\box63
-)
-(C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex/generic/pgf/libraries/decorations\pgflibrarydecorations.pathreplacing.code.tex)) (C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibrarypatterns.code.tex
-File: tikzlibrarypatterns.code.tex 2023-01-15 v3.1.10 (3.1.10)
- (C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex/generic/pgf/libraries\pgflibrarypatterns.code.tex
-File: pgflibrarypatterns.code.tex 2023-01-15 v3.1.10 (3.1.10)
-)) (C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdftex.def
+ (C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.cfg)) (C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibraryfit.code.tex
+File: tikzlibraryfit.code.tex 2023-01-15 v3.1.10 (3.1.10)
+) (C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdftex.def
 File: l3backend-pdftex.def 2023-04-19 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count289
-\l__pdf_internal_box=\box64
+\l__color_backend_stack_int=\count288
+\l__pdf_internal_box=\box63
 ) (Wiring.aux)
 \openout1 = `Wiring.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
  (C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count290
-\scratchdimen=\dimen287
-\scratchbox=\box65
-\nofMPsegments=\count291
-\nofMParguments=\count292
+\scratchcounter=\count289
+\scratchdimen=\dimen280
+\scratchbox=\box64
+\nofMPsegments=\count290
+\nofMParguments=\count291
 \everyMPshowfont=\toks31
-\MPscratchCnt=\count293
-\MPscratchDim=\dimen288
-\MPnumerator=\count294
-\makeMPintoPDFobject=\count295
+\MPscratchCnt=\count292
+\MPscratchDim=\dimen281
+\MPnumerator=\count293
+\makeMPintoPDFobject=\count294
 \everyMPtoPDFconversion=\toks32
 ) (C:\Users\rnguyen\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
@@ -398,9 +384,9 @@ File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 88.
+(Font)              <7> on input line 26.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 88.
+(Font)              <5> on input line 26.
 [1
 
 {C:/Users/rnguyen/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}] (Wiring.aux)
@@ -410,17 +396,17 @@ L3 programming layer <2023-06-16>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 30218 strings out of 476036
- 794942 string characters out of 5778881
- 1877763 words of memory out of 5000000
- 50680 multiletter control sequences out of 15000+600000
- 514535 words of font info for 38 fonts, out of 8000000 for 9000
+ 29885 strings out of 476036
+ 782297 string characters out of 5778881
+ 1901763 words of memory out of 5000000
+ 50362 multiletter control sequences out of 15000+600000
+ 514881 words of font info for 39 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 117i,6n,121p,545b,820s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<C:/Users/rnguyen/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/rnguyen/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb>
-Output written on Wiring.pdf (1 page, 36216 bytes).
+ 117i,6n,121p,545b,833s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<C:/Users/rnguyen/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/rnguyen/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/rnguyen/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/rnguyen/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti10.pfb>
+Output written on Wiring.pdf (1 page, 62442 bytes).
 PDF statistics:
- 19 PDF objects out of 1000 (max. 8388607)
+ 29 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 
