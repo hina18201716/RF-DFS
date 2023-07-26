@@ -2632,6 +2632,9 @@
   (gr_text "RF-DFS Gain Circuit" (at 186.69 190.5) (layer "Cmts.User") (tstamp 6adc4429-38d0-40d6-8bbf-0202f4c0a3f6)
     (effects (font (size 1.5 1.5) (thickness 0.3) bold) (justify left bottom))
   )
+  (gr_text "LNA footprint is also pin-compatible with:\nPMA2-123LN+\nPMA2-153LN+" (at 177.8 167.005) (layer "Cmts.User") (tstamp bf29e38c-4f1e-42d6-b1ac-a2172ae05046)
+    (effects (font (size 1.5 1.5) (thickness 0.3) bold) (justify left top))
+  )
 
   (segment (start 109.366 110.512) (end 115.0481 110.512) (width 0.63) (layer "F.Cu") (net 1) (tstamp 487a1762-5b46-4a8d-86b4-60ad9f8f6a7d))
   (segment (start 123.829 110.512) (end 118.947 110.512) (width 0.63) (layer "F.Cu") (net 2) (tstamp d9ba5e3f-b8d5-4afb-bdc2-a4795ebb6215))

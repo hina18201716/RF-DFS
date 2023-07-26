@@ -406,7 +406,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "3_Meter_Dish_LNA.kicad_pro",
+    "filename": "002.35.20.15.20-001-PCB-LNA.kicad_pro",
     "version": 1
   },
   "net_settings": {
@@ -539,11 +539,11 @@
     ],
     [
       "9ff85c99-1040-4eb9-b5d8-3cc01caa0e77",
-      "LNA Biasing"
+      "LNA Biasing1"
     ],
     [
       "ba672304-1315-4178-9e1d-d553703e5b04",
-      "LNA Biasing1"
+      "LNA Biasing2"
     ]
   ],
   "text_variables": {}
