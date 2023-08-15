@@ -11,4 +11,7 @@ nexttile
 rfplot(PMA6G)
 grid on
 title('RF-DFS Board with PMA2-63LN+')
-xlabel('Frequency (MHz)')
+xlabel('Frequency (GHz)')
+
+% Output csv
+writematrix([PMA6G.Frequencies/10^6, mag2db(abs(rfparam(PMA6G, 2, 1)))], 'rfdfs-6g-sparam.txt', 'Delimiter', 'tab');
