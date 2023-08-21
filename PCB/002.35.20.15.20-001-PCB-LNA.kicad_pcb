@@ -2632,7 +2632,7 @@
   (gr_text "RF-DFS Gain Circuit" (at 186.69 190.5) (layer "Cmts.User") (tstamp 6adc4429-38d0-40d6-8bbf-0202f4c0a3f6)
     (effects (font (size 1.5 1.5) (thickness 0.3) bold) (justify left bottom))
   )
-  (gr_text "LNA footprint is also pin-compatible with:\nPMA2-123LN+\nPMA2-153LN+" (at 177.8 167.005) (layer "Cmts.User") (tstamp bf29e38c-4f1e-42d6-b1ac-a2172ae05046)
+  (gr_text "Notes:\nLNA footprint is pin-compatible with PMA2-123LN+.\nBoard oscillates at ~10.5 GHz, cause unknown.\nPoor return loss - SMA pads not matched.\n" (at 177.8 167.005) (layer "Cmts.User") (tstamp bf29e38c-4f1e-42d6-b1ac-a2172ae05046)
     (effects (font (size 1.5 1.5) (thickness 0.3) bold) (justify left top))
   )
 
