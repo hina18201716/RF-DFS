@@ -1,4 +1,4 @@
-21780970200740118
+21796286524176431
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -90349,41 +90349,90 @@ varistor
 2
 2
 footprints
+MODULE_ESP32-DEVKITC-32D
+
+
+0
+38
+38
+footprints
 amongus_silk
 
 
 0
 0
 0
-footprints
+footprints.pretty
+CONN_S2B-PH-K-S_JST
+
+S2B-PH-K-SLFSN 
+0
+2
+2
+footprints.pretty
+RELAY8_J102K1CS33VDC.20_CRS
+
+J104D2C5VDC.20S 
+0
+5
+5
+footprints.pretty
+RELAY8_J104D2C5VDC.20S_CRS
+
+J104D2C5VDC.20S 
+0
+8
+8
+footprints.pretty
+amongus_silk
+
+
+0
+0
+0
+footprints.pretty
 felipe_silk
 
 
 0
 0
 0
-footprints
+footprints.pretty
 hawkeye_silk
 
 
 0
 0
 0
-footprints
+footprints.pretty
+nrao1_6mm_silk
+
+
+0
+0
+0
+footprints.pretty
+nrao1_7mm_silk
+
+
+0
+0
+0
+footprints.pretty
 nrao1_silk
 
 
 0
 0
 0
-footprints
+footprints.pretty
 nrao2_silk
 
 
 0
 0
 0
-footprints
+footprints.pretty
 zach50mm_silk
 
 
@@ -90461,6 +90510,34 @@ LM358APE4
 8
 8
 imports
+airtag_silk
+
+
+0
+0
+0
+imports
+circulator2_silk
+
+
+0
+0
+0
+imports
+circulator3_silk
+
+
+0
+0
+0
+imports
+circulator_silk
+
+
+0
+0
+0
+imports
 felipe_silk
 
 
@@ -90469,20 +90546,6 @@ felipe_silk
 0
 imports
 hawkeye_silk
-
-
-0
-0
-0
-imports
-nrao1
-
-
-0
-0
-0
-imports
-nrao2
 
 
 0
