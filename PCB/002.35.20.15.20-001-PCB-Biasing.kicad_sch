@@ -630,13 +630,13 @@
       (effects (font (size 1.27 1.27) italic) hide)
     )
     (pin "1" (uuid 84775aa3-a8e0-46c3-8abc-787b953ef14e))
-    (pin "2" (uuid 9c43d7ea-ab74-4875-a3e3-a8f24a882390))
     (pin "3" (uuid 0e0f0117-7bdb-4021-9fc7-7305647ba6af))
-    (pin "5" (uuid ec3f1578-5a88-40ea-b9f7-d4fb743dc0b0))
     (pin "6" (uuid 98a31a4a-f8c8-475f-b03f-cbd54094e5db))
+    (pin "2" (uuid 9c43d7ea-ab74-4875-a3e3-a8f24a882390))
+    (pin "4" (uuid 7a29de0e-5c79-481c-b493-a1e980ba99e3))
+    (pin "5" (uuid ec3f1578-5a88-40ea-b9f7-d4fb743dc0b0))
     (pin "7" (uuid 8781bb5e-2a1e-448b-9ca2-1bff1820f31c))
     (pin "8" (uuid 1938a37c-a552-495f-a324-41a29d7c509f))
-    (pin "4" (uuid 7a29de0e-5c79-481c-b493-a1e980ba99e3))
     (pin "9" (uuid ebdae88e-1fff-4ae7-8593-d379575d8528))
     (instances
       (project "002.35.20.15.20-001-PCB-LNA"

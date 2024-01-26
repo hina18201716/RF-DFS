@@ -1,4 +1,4 @@
-21796286524176431
+21803110694152731
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -90384,6 +90384,27 @@ J104D2C5VDC.20S
 8
 8
 footprints.pretty
+SON8_PMA2_MNC
+
+PMA2-63LN+ 
+0
+9
+9
+footprints.pretty
+SON8_PMA2_MNC-L
+
+PMA2-63LN+ 
+0
+9
+9
+footprints.pretty
+SON8_PMA2_MNC-M
+
+PMA2-63LN+ 
+0
+9
+9
+footprints.pretty
 amongus_silk
 
 
@@ -90509,6 +90530,13 @@ LM358APE4
 0
 8
 8
+imports
+RF-DFS-GCPW-OSH
+
+
+0
+0
+0
 imports
 airtag_silk
 
