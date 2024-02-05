@@ -35,8 +35,8 @@
         "other_text_upright": false,
         "pads": {
           "drill": 0.0,
-          "height": 1.2,
-          "width": 5.08
+          "height": 10.8,
+          "width": 9.4
         },
         "silk_line_width": 0.15,
         "silk_text_italic": false,
@@ -440,7 +440,7 @@
         "name": "GCPW",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.418,
+        "track_width": 0.415,
         "via_diameter": 0.8,
         "via_drill": 0.4,
         "wire_width": 6
