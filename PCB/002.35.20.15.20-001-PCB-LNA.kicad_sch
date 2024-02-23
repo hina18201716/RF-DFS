@@ -2,7 +2,15 @@
 
   (uuid a33db424-96f2-4015-ba95-8b9f2330ef17)
 
-  (paper "A4")
+  (paper "USLetter")
+
+  (title_block
+    (title "RF-DFS Gain Circuit")
+    (date "2/23/2024")
+    (rev "C")
+    (company "National Radio Astronomy Observatory")
+    (comment 1 "Remy Nguyen")
+  )
 
   (lib_symbols
     (symbol "Connector:Conn_Coaxial" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
@@ -469,22 +477,6 @@
     (uuid f3f86275-c038-45fd-a2c3-ecba932d71d5)
   )
 
-  (text "RF-DFS Gain Circuit" (at 186.69 190.5 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid 01e6c915-5d37-4f22-bc58-ba280824943a)
-  )
-  (text "7/6/2023" (at 207.01 194.31 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid 69235d1b-e970-4918-a8e7-db2e588114e0)
-  )
-  (text "Remy Nguyen" (at 270.51 180.34 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid 6a2529a8-c4dc-41c4-977a-48172a63a599)
-  )
-  (text "B" (at 269.24 194.31 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid 799bf235-b82c-4355-9052-ef2e322baf18)
-  )
   (text "RF Gain Circuit" (at 144.78 143.51 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid e193004c-6ca8-4b05-91b6-76ffad4cf453)
