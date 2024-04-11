@@ -1,4 +1,4 @@
-22687810624844030
+22694661725281100
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -53717,6 +53717,13 @@ FabDrawing-4Layer-Metric-Compact
 0
 0
 0
+FabDrawingTemplates
+FabDrawing-4Layer-Metric-Compact-OSH
+
+
+0
+0
+0
 Ferrite_THT
 LairdTech_28C0236-0JW-10
 Ferrite, vertical, LairdTech 28C0236-0JW-10, https://assets.lairdtech.com/home/brandworld/files/28C0236-0JW-10.pdf, JW Miller core https://www.bourns.com/products/magnetic-products/j.w.-miller-through-hole-ferrite-beads-emi-filters
@@ -61123,6 +61130,20 @@ Yellow 5381 Series LED
 0
 2
 2
+Mini-Circuits
+QFN51P250X350X85-17N
+JV2579-DFN=16_
+Integrated Circuit
+0
+17
+17
+Mini-Circuits
+QFN51P300X300X89-13N
+DQ1225_2023
+Integrated Circuit
+0
+13
+13
 Module
 A20_OLINUXINO_LIME2
 A20 Olinuxino LIME2, 1.2GHz, 512-1024MB RAM, Micro-SD, NAND or eMMC, 1000Mbit Ethernet
@@ -93939,6 +93960,13 @@ MODULE_ESP32-DEVKITC-32D
 0
 38
 38
+footprints
+SMA_Molex_73251-1153_EdgeMount_Horizontal_TunedOSH
+Molex SMA RF Connectors, Edge Mount, (http://www.molex.com/pdm_docs/sd/732511150_sd.pdf)
+sma edge
+0
+11
+2
 footprints
 SMA_Molex_73251-1153_EdgeMount_Horizontal_WithModel
 Molex SMA RF Connectors, Edge Mount, (http://www.molex.com/pdm_docs/sd/732511150_sd.pdf)
