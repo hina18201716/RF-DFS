@@ -8752,7 +8752,7 @@
   (gr_text "4/12/2024" (at 189 199) (layer "Cmts.User") (tstamp c5f4cc17-2c9d-4a41-a68f-1d9d5c333a06)
     (effects (font (size 1.5 1.5) (thickness 0.3) bold) (justify left))
   )
-  (gr_text "50-10000 MHz SMT LNA" (at 169.5 195.5) (layer "Cmts.User") (tstamp e888cb5f-2c04-4d0d-97d7-7a5284fa568d)
+  (gr_text "6000-18000 MHz SMT LNA" (at 169.5 195.5) (layer "Cmts.User") (tstamp e888cb5f-2c04-4d0d-97d7-7a5284fa568d)
     (effects (font (size 1.5 1.5) (thickness 0.3) bold) (justify left))
   )
   (gr_text "TOP-L1" (at 13 14) (layer "Eco1.User") (tstamp 946d0952-c4fb-43bf-972d-f34d3fcf3d8c)
