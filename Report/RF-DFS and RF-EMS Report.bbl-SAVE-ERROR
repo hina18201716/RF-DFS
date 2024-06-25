@@ -1,0 +1,187 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global/global}
+    \entry{solartemp}{article}{}{}
+      \name{author}{4}{}{%
+        {{hash=970a0b6a2e1aba02e4e4a5565fda5d71}{%
+           family={Ho},
+           familyi={H\bibinitperiod},
+           given={Christian},
+           giveni={C\bibinitperiod}}}%
+        {{hash=39e07a2041d27e1953ae002c34e72eae}{%
+           family={Slobin},
+           familyi={S\bibinitperiod},
+           given={Stephen},
+           giveni={S\bibinitperiod}}}%
+        {{hash=b0611c7d5cc2f504617e47263177c170}{%
+           family={Kantak},
+           familyi={K\bibinitperiod},
+           given={Anil},
+           giveni={A\bibinitperiod}}}%
+        {{hash=d0920de81058e302ddd6bbeb0d390bb1}{%
+           family={Asmar},
+           familyi={A\bibinitperiod},
+           given={Sami},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{7ee38377b71e1ee9d7463b7608f527be}
+      \strng{fullhash}{4e71237460e3b572bea0a1cfd1ffa0ff}
+      \strng{fullhashraw}{4e71237460e3b572bea0a1cfd1ffa0ff}
+      \strng{bibnamehash}{7ee38377b71e1ee9d7463b7608f527be}
+      \strng{authorbibnamehash}{7ee38377b71e1ee9d7463b7608f527be}
+      \strng{authornamehash}{7ee38377b71e1ee9d7463b7608f527be}
+      \strng{authorfullhash}{4e71237460e3b572bea0a1cfd1ffa0ff}
+      \strng{authorfullhashraw}{4e71237460e3b572bea0a1cfd1ffa0ff}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IPN Progress Report 42-175}
+      \field{title}{Solar Brightness Temperature and Corresponding Antenna Noise Temperature at Microwave Frequencies}
+      \field{year}{2008}
+    \endentry
+    \entry{aeh}{inbook}{}{}
+      \name{author}{1}{}{%
+        {{hash=1a718868d0679f0725d75d13029f6030}{%
+           family={Johnson},
+           familyi={J\bibinitperiod},
+           given={Richard\bibnamedelima C.},
+           giveni={R\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {McGraw-Hill, Inc.}%
+      }
+      \strng{namehash}{1a718868d0679f0725d75d13029f6030}
+      \strng{fullhash}{1a718868d0679f0725d75d13029f6030}
+      \strng{fullhashraw}{1a718868d0679f0725d75d13029f6030}
+      \strng{bibnamehash}{1a718868d0679f0725d75d13029f6030}
+      \strng{authorbibnamehash}{1a718868d0679f0725d75d13029f6030}
+      \strng{authornamehash}{1a718868d0679f0725d75d13029f6030}
+      \strng{authorfullhash}{1a718868d0679f0725d75d13029f6030}
+      \strng{authorfullhashraw}{1a718868d0679f0725d75d13029f6030}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{chapter}{41}
+      \field{edition}{Third}
+      \field{title}{Antenna Engineering Handbook}
+      \field{year}{1993}
+    \endentry
+    \entry{tora}{inbook}{}{}
+      \name{author}{2}{}{%
+        {{hash=46ef7d5116ba0b008e476cb9837e07e7}{%
+           family={Rohlfs},
+           familyi={R\bibinitperiod},
+           given={K.},
+           giveni={K\bibinitperiod}}}%
+        {{hash=87a6803d1228937daf5db51429928c4b}{%
+           family={Wilson},
+           familyi={W\bibinitperiod},
+           given={T.L.},
+           giveni={T\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Springer-Verlag}%
+      }
+      \strng{namehash}{81095dbb752ef2bb0de179c157877427}
+      \strng{fullhash}{81095dbb752ef2bb0de179c157877427}
+      \strng{fullhashraw}{81095dbb752ef2bb0de179c157877427}
+      \strng{bibnamehash}{81095dbb752ef2bb0de179c157877427}
+      \strng{authorbibnamehash}{81095dbb752ef2bb0de179c157877427}
+      \strng{authornamehash}{81095dbb752ef2bb0de179c157877427}
+      \strng{authorfullhash}{81095dbb752ef2bb0de179c157877427}
+      \strng{authorfullhashraw}{81095dbb752ef2bb0de179c157877427}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{chapter}{5}
+      \field{edition}{Third}
+      \field{title}{Tools of Radio Astronomy}
+      \field{year}{2000}
+    \endentry
+    \entry{xbandvla}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=10d5771c4bb96e0b6b1357b18c241ad9}{%
+           family={Ulvestad},
+           familyi={U\bibinitperiod},
+           given={J.S.},
+           giveni={J\bibinitperiod}}}%
+        {{hash=dffb58a928508bed9db14152179140b5}{%
+           family={Resch},
+           familyi={R\bibinitperiod},
+           given={G.M.},
+           giveni={G\bibinitperiod}}}%
+        {{hash=18e55b157fbbcaac7262d51c2d222094}{%
+           family={Brundage},
+           familyi={B\bibinitperiod},
+           given={W.D.},
+           giveni={W\bibinitperiod}}}%
+      }
+      \strng{namehash}{d919a301281b3fac52bbf39304495b44}
+      \strng{fullhash}{d919a301281b3fac52bbf39304495b44}
+      \strng{fullhashraw}{d919a301281b3fac52bbf39304495b44}
+      \strng{bibnamehash}{d919a301281b3fac52bbf39304495b44}
+      \strng{authorbibnamehash}{d919a301281b3fac52bbf39304495b44}
+      \strng{authornamehash}{d919a301281b3fac52bbf39304495b44}
+      \strng{authorfullhash}{d919a301281b3fac52bbf39304495b44}
+      \strng{authorfullhashraw}{d919a301281b3fac52bbf39304495b44}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{TDA Progress Report 42-92}
+      \field{title}{X-Band System Performance of the Very Large Array}
+      \field{volume}{Oct-Dec 1987}
+      \field{year}{1988}
+    \endentry
+    \entry{sfd1986}{report}{}{}
+      \name{author}{1}{}{%
+        {{hash=9708111d52a98ea2f8a6b2a8ed9a901a}{%
+           family={Daywitt},
+           familyi={D\bibinitperiod},
+           given={William\bibnamedelima C.},
+           giveni={W\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {National Bureau of Standards}%
+      }
+      \strng{namehash}{9708111d52a98ea2f8a6b2a8ed9a901a}
+      \strng{fullhash}{9708111d52a98ea2f8a6b2a8ed9a901a}
+      \strng{fullhashraw}{9708111d52a98ea2f8a6b2a8ed9a901a}
+      \strng{bibnamehash}{9708111d52a98ea2f8a6b2a8ed9a901a}
+      \strng{authorbibnamehash}{9708111d52a98ea2f8a6b2a8ed9a901a}
+      \strng{authornamehash}{9708111d52a98ea2f8a6b2a8ed9a901a}
+      \strng{authorfullhash}{9708111d52a98ea2f8a6b2a8ed9a901a}
+      \strng{authorfullhashraw}{9708111d52a98ea2f8a6b2a8ed9a901a}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{10-60 GHz G/T Measurements Using the Sun as a Source--A Preliminary Study}
+      \field{type}{techreport}
+      \field{year}{1986}
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+
