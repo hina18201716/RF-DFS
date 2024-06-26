@@ -16,11 +16,8 @@ class MotorControl:
         self.Azi_bound = Azi_bound
         self.Ele_bound = Ele_bound
         self.port = ''
-
-        self.ser = serial.Serial(port= 'COM4' ,baudrate=9600 )
-        if self.ser.isOpen():
-            self.ser.close()
-        self.ser.open()
+        # self.portConnection()
+        self.ser = serial.Serial(port= 'COM4', baudrate=9600 )
 
 # check input type, if both 
     def readinput( self ):
@@ -77,6 +74,13 @@ class MotorControl:
         self.Azimuth = self.userAzi
         self.Elevation = self.userEle
         print ( "position updated")
+
+    def portConnection( self ):
+        print( "port was changed to " + self.port)
+        if self.ser.isOpen():
+            self.ser.close()
+        self.ser = serial.Serial(port= str( self.port ), baudrate=9600 )
+
 
 
 class Newwindow():
@@ -157,9 +161,13 @@ class Newwindow():
         self.motor.userEle = self.inputElevation.get()
         self.motor.readinput()
 
-        portName = self.port_selection.get()
-        self.motor.port = portName[:4]
+    # change port if current port is different from user input 
+    # place this fanctionality in portConnection in motor class
+        if self.motor.port != self.port_selection.get()[:4]: 
+            portName = self.port_selection.get()
+            self.motor.port = portName[:4]
+            self.motor.portConnection()
+            print("switching port")
         
-    
     def quit(self):
         self.root.destroy()
