@@ -22,19 +22,27 @@ class MotorControl:
             self.ser.close()
         self.ser.open()
 
-    # def setAzimuth( self ):
-    #     self.Azimuth = self.userAzi
-    #     self.Elevation = self.userEle
+# check input type, if both 
     def readinput( self ):
         # read input and check integer
         # pop up error message w/ tkinter.messagebox.--
     
-        if ((self.userAzi).isdigit()) and ((self.userEle).isdigit()):
+        if self.userAzi == "" and self.userEle == "":
+           pass
+        elif ((self.userAzi).isdigit()) and ((self.userEle).isdigit()):
            self.checkrange()
+        elif ( self.userAzi.isdigit() ):
+            self.userEle = self.Elevation
+            self.checkrange()
+        elif( self.userEle.isdigit() ):
+            self.userAzi = self.Azimuth
+            self.checkrange()
         else : 
-            print ("Input must be integers")
-
-    def checkrange( self ):
+            # popup error message
+            print ("Both Input must be integers")
+            
+# chack range of input , popup error message if inout is out of range
+    def checkrange( self ): 
         isInRange = True
         self.IntUserAzi = int(self.userAzi)
         self.IntUserEle = int(self.userEle)
@@ -46,24 +54,29 @@ class MotorControl:
 
         # move antenna / error popup window
         if isInRange:
-            # call move 
-            print ("start moving antenna")
+            print ("send commend to arduino")
             self.moveAntenna()
         else: 
             # error popup
             print("range error")
 
     def moveAntenna( self ):
-        commandX = 'jog abs x ' + self.userAzi
-        self.ser.write( commandX.encode('utf-8'))
-        commandY = 'jog abs y ' + self.userEle
+        # commandX = 'jog abs x ' + self.userAzi
+        # self.ser.write( commandX.encode('utf-8'))
+        # line1 = self.ser.readline()
+        # data1 = line1.decode('utf-8')
+        # print( data1 ) 
+
+
+        commandY = 'jog abs y '
         self.ser.write( commandY.encode('utf-8'))
-        line = self.ser.readline()
-        data = line.decode('utf-8')
-        print( data ) 
+        line2 = self.ser.readline()
+        data2 = line2.decode('utf-8')
+        print( data2 ) 
+
         self.Azimuth = self.userAzi
         self.Elevation = self.userEle
-        print ( " position updated ")
+        print ( "position updated")
 
 
 class Newwindow():
