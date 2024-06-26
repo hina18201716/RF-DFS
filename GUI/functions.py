@@ -98,11 +98,11 @@ class Newwindow():
         self.port_selection.grid(row = 0, column= 0 , padx = 20 , pady = 10)
 
         # emargency stop creation
-        self.EmargencyStop = tk.Button( self.quickButton, text = "Emargency Stop", font = ('Arial', 16 ) , bg = 'red', fg = 'white' )
+        self.EmargencyStop = tk.Button( self.quickButton, text = "Emargency Stop", font = ('Arial', 16 ) , bg = 'red', fg = 'white' , command= self.Estop )
         self.EmargencyStop.pack()
 
         # park button creation
-        self.Park = tk.Button( self.quickButton, text = "Park", font = ('Arial', 16) , bg = 'blue', fg = 'white' )
+        self.Park = tk.Button( self.quickButton, text = "Park", font = ('Arial', 16) , bg = 'blue', fg = 'white' , command = self.park )
         self.Park.pack()
 
         # azi,ele input boxes creation
@@ -135,7 +135,15 @@ class Newwindow():
         self.exitbutton.pack()
 
         self.root.mainloop()
-        
+
+    def Estop(self):
+        print( " Emargency button was pushed ")
+        # send serial command to stop moving antenna (JOG OFF)
+    
+    def park( self ):
+        print( "Park antenna to 0:0 position" )
+        # send serial command to move antenna to home ( JOG HOME / JOG abs x 0 & JOG abs y 0 )
+ 
     def input(self):
         # show user values in terminal
         print("---------------------------------")
