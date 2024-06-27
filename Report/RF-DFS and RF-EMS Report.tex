@@ -389,9 +389,13 @@ Subsection text here
             \draw(0, 0) node[server, scale=1.5, name=computer]{};
             \draw(computer.south) node[anchor=north]{};
             \ctikzset{bipoles/oscope/waveform=triangle}
+            \ctikzset{bipoles/oscope/width=1.0}
             \draw(computer.east)  ++ (0.6, 0) 
             coordinate(ctreast)-- ++ (1, 0)
-            to[oscope=N9040b, name=spec] ++ (1, 0) -- ++ (1.8, 0)
+            node[oscopeshape, anchor=west](spec){N9040b};
+            \draw(spec.in 1) node[ocirc, scale=0.7]{};
+            \draw(spec.in 2) node[ocirc, scale=0.7]{};
+            \draw(spec.east) -- ++ (1.8, 0)
             node[twoportshape, name=s1]{} -- ++ (0.8, 0)
             to[amp, boxed, invert] ++ (1.7, 0) -- ++ (0.8, 0)
             node[twoportshape, name=s2]{};
@@ -404,7 +408,7 @@ Subsection text here
             \draw(s2.right down) -- ++ (2.5, 0)
             node[dinantenna](dfs){DFS};
 
-            \draw(box.north)[<-] -- ++ (0, 0.4)
+            \draw([yshift=5pt]box.north)[<-] -- ++ (0, 0.4)
             node[qfpchip, anchor=south, external pins width=0, hide numbers, name=uc, solid, scale=0.8]{$\upmu$C};
             
             
@@ -423,7 +427,7 @@ Subsection text here
             \draw([yshift=8pt]acr.east) -- ++ (1.5, 0)
             node[elmech, rotate=90, anchor=top](m1){};
             %\draw(m1) [->] -- ++ (3, 0) -- ([yshift=-10pt, xshift=-10pt]dfs.center);
-            \path[name path = border3](dfs.center) -- ++ (0, -5);
+            \path[name path = border3](dfs.center) -- ++ (0, -2);
             \path[name path = line3, overlay](m1.bottom) -- ++ (5, 0);
             \draw[name intersections={of=border3 and line3}] (m1.bottom) -- (intersection-1)
             node[diamondpole]{};
@@ -431,6 +435,44 @@ Subsection text here
             \draw(m2.center) node{El};
         \end{circuitikz}
     \caption{Block diagram 2.}\label{fig:sysblock}
+    \end{center}
+\end{figure}
+\begin{figure}[!ht]
+    \begin{center}
+        \begin{circuitikz}
+            \draw(0, 0) node[bnc](port1){To N9040b};
+            \draw(port1.hot) -- ++ (1, 0)
+            node[rotary switch = 3 in 50 wiper 40, anchor=in, ](s1){};
+            
+            \draw(s1.out 1) -| ++ (0.75, 1.5)
+            -- ++ (0.5, 0)
+            to[amp, invert] ++ (1.5, 0)
+            to[amp, invert] ++ (1.5, 0)
+            to[amp, invert] ++ (1.5, 0) -- ++ (0.5, 0)
+            coordinate(p1);
+            
+            \draw(s1.out 2) -- ++ (1, 0)
+            to[amp, invert] ++ (1.5, 0)
+            to[amp, invert] ++ (1.5, 0)
+            to[amp, invert] ++ (1.5, 0) -- ++ (0.5, 0)
+            coordinate(p2);
+
+            \draw($(p1)!0.5!(p2)$) ++ (1, 0)
+            node[rotary switch = 2 in 30 wiper 20, xscale=-1](s2){};
+            \draw(s2.out 1) -| (p1);
+            \draw(s2.out 2) -| (p2);
+            \draw(s2.in) -- ++ (1, 0)
+            node[bnc, xscale=-1](port2){\ctikzflipx{To EMS}};
+            
+            \draw(s1.out 3) -| ++ (0.75, -1.5)
+            -- ++ (0.5, 0)
+            to[amp, invert] ++ (1.5, 0)
+            to[amp, invert] ++ (1.5, 0)
+            to[amp, invert] ++ (1.5, 0) -- ++ (0.5, 0)
+            -- ++ (2.4, 0)
+            node[bnc, xscale=-1](port3){\ctikzflipx{To DFS}};
+        \end{circuitikz}
+    \caption{Block diagram 3.}\label{fig:rfampblock}
     \end{center}
 \end{figure}
 
