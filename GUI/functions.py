@@ -36,14 +36,6 @@ class MotorControl:
             print ("Input must be integers")
             self.InputTypeError()
 
-    def InputTypeError( self ):
-        messagebox.showwarning( title= "Inout Error" , message= "Input must be numbers")
-
-    def RangeError( self ):
-        range = "Azimuth: " + str(self.Azi_bound[0]) + "-" + str(self.Azi_bound[1]) + "\n" + "Elevation: " +  str(self.Ele_bound[0]) + "-" + str(self.Ele_bound[1])
-        messagebox.showwarning( title= "Range error", message= "Input must be in range \n" + range ) 
-
-        
 # chack range of input , popup error message if inout is out of range
     def checkrange( self ): 
         isInRange = True
@@ -63,6 +55,14 @@ class MotorControl:
             # error popup
             print("range error")
             self.RangeError()
+
+    
+    def InputTypeError( self ):
+        messagebox.showwarning( title= "Inout Error" , message= "Input must be numbers")
+
+    def RangeError( self ):
+        range = "Azimuth: " + str(self.Azi_bound[0]) + "-" + str(self.Azi_bound[1]) + "\n" + "Elevation: " +  str(self.Ele_bound[0]) + "-" + str(self.Ele_bound[1])
+        messagebox.showwarning( title= "Range error", message= "Input must be in range \n" + range ) 
 
     def moveAntenna( self ):
         # commandX = 'jog abs x ' + self.userAzi
@@ -88,6 +88,10 @@ class MotorControl:
             self.ser.close()
         self.ser = serial.Serial(port= str( self.port ), baudrate=9600 )
 
+    def EmargencyStop( self ):
+        print( " stop motor " )
+        breakCommand = 'jog off x y'
+        self.ser.write( breakCommand.encode('utf-8') ) 
 
 
 class Newwindow():
@@ -148,20 +152,24 @@ class Newwindow():
         self.root.mainloop()
 
     def Estop(self):
-        print( " Emargency button was pushed ")
         # send serial command to stop moving antenna (JOG OFF)
+        self.motor.EmargencyStop()
     
     def park( self ):
-        print( "Park antenna to 0:0 position" )
+        print( "Park antenna to default position" )
         # send serial command to move antenna to home ( JOG HOME / JOG abs x 0 & JOG abs y 0 )
- 
+        # set default parameter 
+        self.motor.userAzi = "0"
+        self.motor.userEle = "0"
+        self.motor.readinput()
+
     def input(self):
         # show user values in terminal
-        print("---------------------------------")
-        print( "Here are user inputs" )
-        print( "Azimuth: ",  self.inputAzimuth.get() )
-        print( "Elevation: ", self.inputElevation.get() )
-        print ( "COM: ", self.port_selection.get() )
+        # print("---------------------------------")
+        # print( "Here are user inputs" )
+        # print( "Azimuth: ",  self.inputAzimuth.get() )
+        # print( "Elevation: ", self.inputElevation.get() )
+        # print ( "COM: ", self.port_selection.get() )
 
         # update user value in motor class
         self.motor.userAzi = self.inputAzimuth.get()
