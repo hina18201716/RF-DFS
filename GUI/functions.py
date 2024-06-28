@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 import math
 import time
 import serial
@@ -16,28 +17,33 @@ class MotorControl:
         self.Azi_bound = Azi_bound
         self.Ele_bound = Ele_bound
         self.port = ''
-        # self.portConnection()
+       
         self.ser = serial.Serial(port= 'COM4', baudrate=9600 )
 
 # check input type, if both 
     def readinput( self ):
-        # read input and check integer
-        # pop up error message w/ tkinter.messagebox.--
-    
-        if self.userAzi == "" and self.userEle == "":
-           pass
+        #  branck set to be current value
+        if self.userAzi == "":
+            self.userAzi = self.Azimuth
+        if self.userEle == "":
+            self.userEle = self.Elevation
+
+        # digit -> check range / not digit -> error pop up
         elif ((self.userAzi).isdigit()) and ((self.userEle).isdigit()):
            self.checkrange()
-        elif ( self.userAzi.isdigit() ):
-            self.userEle = self.Elevation
-            self.checkrange()
-        elif( self.userEle.isdigit() ):
-            self.userAzi = self.Azimuth
-            self.checkrange()
         else : 
             # popup error message
-            print ("Both Input must be integers")
-            
+            print ("Input must be integers")
+            self.InputTypeError()
+
+    def InputTypeError( self ):
+        messagebox.showwarning( title= "Inout Error" , message= "Input must be numbers")
+
+    def RangeError( self ):
+        range = "Azimuth: " + str(self.Azi_bound[0]) + "-" + str(self.Azi_bound[1]) + "\n" + "Elevation: " +  str(self.Ele_bound[0]) + "-" + str(self.Ele_bound[1])
+        messagebox.showwarning( title= "Range error", message= "Input must be in range \n" + range ) 
+
+        
 # chack range of input , popup error message if inout is out of range
     def checkrange( self ): 
         isInRange = True
@@ -56,6 +62,7 @@ class MotorControl:
         else: 
             # error popup
             print("range error")
+            self.RangeError()
 
     def moveAntenna( self ):
         # commandX = 'jog abs x ' + self.userAzi
@@ -118,17 +125,17 @@ class Newwindow():
 
         self.azimuth_label = tk.Label( self.boxFrame , text = "Azimuth" )
         self.elevation_label = tk.Label( self.boxFrame , text = "Elevation")
-        self.current_azimuth = tk.Label( self.boxFrame, text = self.motor.Azimuth )
-        self.current_elevation = tk.Label( self.boxFrame, text = self.motor.Elevation )
+        # self.current_azimuth = tk.Label( self.boxFrame, text = self.motor.Azimuth )
+        # self.current_elevation = tk.Label( self.boxFrame, text = self.motor.Elevation )
         self.inputAzimuth = tk.Entry( self.boxFrame, width= 10 )
         self.inputElevation = tk.Entry( self.boxFrame, width= 10 )
 
         self.azimuth_label.grid( row = 0, column = 0 )
         self.elevation_label.grid( row = 1, column = 0 )
-        self.current_azimuth.grid( row = 0, column = 1, padx = 10 )
-        self.current_elevation.grid( row = 1, column = 1, padx = 10 )
-        self.inputAzimuth.grid( row = 0, column = 2 )
-        self.inputElevation.grid( row = 1, column = 2 )
+        # self.current_azimuth.grid( row = 0, column = 1, padx = 10 )
+        # self.current_elevation.grid( row = 1, column = 1, padx = 10 )
+        self.inputAzimuth.grid( row = 0, column = 2, padx = 5 )
+        self.inputElevation.grid( row = 1, column = 2, padx = 5 )
 
         # enter button creation
         self.printbutton = tk.Button( self.positions, text = "Enter", command = self.input )
