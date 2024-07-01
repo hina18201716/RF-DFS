@@ -32,9 +32,7 @@ class MotorControl:
         elif ((self.userAzi).isdigit()) and ((self.userEle).isdigit()):
            self.checkrange()
         else : 
-            # popup error message
-            print ("Input must be integers")
-            self.InputTypeError()
+            self.InputTypeErrorPopup()
 
 # chack range of input , popup error message if inout is out of range
     def checkrange( self ): 
@@ -49,18 +47,15 @@ class MotorControl:
 
         # move antenna / error popup window
         if isInRange:
-            print ("send commend to arduino")
             self.moveAntenna()
         else: 
-            # error popup
-            print("range error")
-            self.RangeError()
+            self.RangeErrorPopup()
 
     
-    def InputTypeError( self ):
+    def InputTypeErrorPopup( self ):
         messagebox.showwarning( title= "Inout Error" , message= "Input must be numbers")
 
-    def RangeError( self ):
+    def RangeErrorPopup( self ):
         range = "Azimuth: " + str(self.Azi_bound[0]) + "-" + str(self.Azi_bound[1]) + "\n" + "Elevation: " +  str(self.Ele_bound[0]) + "-" + str(self.Ele_bound[1])
         messagebox.showwarning( title= "Range error", message= "Input must be in range \n" + range ) 
 
@@ -71,7 +66,6 @@ class MotorControl:
         # data1 = line1.decode('utf-8')
         # print( data1 ) 
 
-
         commandY = 'jog abs y '
         self.ser.write( commandY.encode('utf-8'))
         line2 = self.ser.readline()
@@ -81,6 +75,11 @@ class MotorControl:
         self.Azimuth = self.userAzi
         self.Elevation = self.userEle
         print ( "position updated")
+
+    def motorErrorMessage( self ):
+        msg = self.ser.readline()
+        if msg.decode('utf-8') != "": 
+            return msg.decode('utf-8')
 
     def portConnection( self ):
         print( "port was changed to " + self.port)
@@ -101,9 +100,9 @@ class Newwindow():
         self.root.geometry('400x300')
         self.root.title('DFS-control')
         
-        # box of asi ele information 
-        self.positions = tk.LabelFrame( self.root  , text = "Antenna Position" )
-        self.positions.grid( row = 1 , column = 0 , padx = 20 , pady = 10)
+        # box for asi ele information 
+        self.positions = tk.LabelFrame( self.root, text = "Antenna Position" )
+        self.positions.grid( row = 1, column = 0 , padx = 20 , pady = 10)
         self.quickButton = tk.Frame( self.root  )
         self.quickButton.grid( row = 1, column= 1 , padx = 20 , pady = 10)
 
@@ -112,20 +111,30 @@ class Newwindow():
         self.port_selection = ttk.Combobox( self.root , values = ports )
         self.port_selection.grid(row = 0, column= 0 , padx = 20 , pady = 10)
 
-        # emargency stop creation
+        # emargency stop button creation
         self.EmargencyStop = tk.Button( self.quickButton, text = "Emargency Stop", font = ('Arial', 16 ) , bg = 'red', fg = 'white' , command= self.Estop )
         self.EmargencyStop.pack()
 
         # park button creation
         self.Park = tk.Button( self.quickButton, text = "Park", font = ('Arial', 16) , bg = 'blue', fg = 'white' , command = self.park )
-        self.Park.pack()
+        self.Park.pack( pady = 10 )
 
         # azi,ele input boxes creation
         self.boxFrame = tk.Frame( self.positions )
-        self.boxFrame.pack()
+        self.boxFrame.pack( pady = 10)
+
+        # exit button creation
+        self.exitbutton = tk.Button( self.quickButton , text = "Exit", font = ('Arial', 16 ), command = quit )
+        self.exitbutton.pack( pady = 10)
 
         # create motor from class "Motorcontrol"
         self.motor = MotorControl( 0 , 90 )
+
+
+        # motorMessage = self.motor.motorErrorMessage() 
+        # if motorMessage != "":
+        #     messagebox.showinfo( title = "Message from Motor Controller ", message= motorMessage )
+
 
         self.azimuth_label = tk.Label( self.boxFrame , text = "Azimuth" )
         self.elevation_label = tk.Label( self.boxFrame , text = "Elevation")
@@ -144,10 +153,6 @@ class Newwindow():
         # enter button creation
         self.printbutton = tk.Button( self.positions, text = "Enter", command = self.input )
         self.printbutton.pack( padx = 20, pady = 10, side = tk.LEFT )
-
-        # exit button creation
-        self.exitbutton = tk.Button( self.positions , text = "Exit" , command = quit )
-        self.exitbutton.pack()
 
         self.root.mainloop()
 
