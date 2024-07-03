@@ -60,11 +60,6 @@ class MotorControl:
         messagebox.showwarning( title= "Range error", message= "Input must be in range \n" + range ) 
 
     def moveAntenna( self ):
-        # commandX = 'jog abs x ' + self.userAzi
-        # self.ser.write( commandX.encode('utf-8'))
-        # line1 = self.ser.readline()
-        # data1 = line1.decode('utf-8')
-        # print( data1 ) 
 
         commandY = 'jog abs y '
         self.ser.write( commandY.encode('utf-8'))
