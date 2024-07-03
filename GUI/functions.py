@@ -17,8 +17,8 @@ class MotorControl:
         self.Azi_bound = Azi_bound
         self.Ele_bound = Ele_bound
         self.port = ''
-       
-        self.ser = serial.Serial(port= 'COM4', baudrate=9600 )
+        self.ser = serial.Serial()
+        self.portConnection() 
 
 # check input type, if both 
     def readinput( self ):
@@ -82,10 +82,20 @@ class MotorControl:
             return msg.decode('utf-8')
 
     def portConnection( self ):
-        print( "port was changed to " + self.port)
-        if self.ser.isOpen():
-            self.ser.close()
-        self.ser = serial.Serial(port= str( self.port ), baudrate=9600 )
+
+        if self.port != '':
+            # print( "port was changed to " + self.port)
+            if self.ser.isOpen():
+                self.ser.close()
+
+            try:    
+                self.ser = serial.Serial(port= str( self.port ), baudrate=9600 )
+            except:
+                self.PortError()
+
+    def PortError(self):
+        messagebox.showerror( title = "Port Open Error", message = "Failed to open port connection")    
+
 
     def EmargencyStop( self ):
         print( " stop motor " )
@@ -166,7 +176,7 @@ class Newwindow():
         # set default parameter 
         self.motor.userAzi = "0"
         self.motor.userEle = "0"
-        self.motor.readinput()
+        # self.motor.readinput()
 
     def input(self):
         # show user values in terminal
