@@ -1,11 +1,10 @@
+# import tkinter as tk
+# from tkinter import ttk
+from tkinter import messagebox
 import tkinter as tk
 from tkinter import ttk
-from tkinter import messagebox
-import math
-import time
 import serial
 import serial.tools.list_ports
-import io 
 
 class MotorControl: 
 
@@ -16,6 +15,9 @@ class MotorControl:
         self.userEle = userEle
         self.Azi_bound = Azi_bound
         self.Ele_bound = Ele_bound
+        self.homeAzi = 0
+        self.homeEle = 90
+        self.breakCommand = 'jog off x y'
         self.port = ''
         self.ser = serial.Serial()
         self.portConnection() 
@@ -47,7 +49,10 @@ class MotorControl:
 
         # move antenna / error popup window
         if isInRange:
-            self.moveAntenna()
+            try:
+                self.moveAntenna()
+            except: 
+                messagebox.showwarning( title = "commanderror" , message = "Failed to connect" )
         else: 
             self.RangeErrorPopup()
 
@@ -86,24 +91,73 @@ class MotorControl:
             try:    
                 self.ser = serial.Serial(port= str( self.port ), baudrate=9600 )
             except:
-                self.PortError()
-
-    def PortError(self):
-        messagebox.showerror( title = "Port Open Error", message = "Failed to open port connection")    
-
+                 messagebox.showerror( title = "Port Open Error", message = "Failed to open port connection")    
 
     def EmargencyStop( self ):
-        print( " stop motor " )
-        breakCommand = 'jog off x y'
-        self.ser.write( breakCommand.encode('utf-8') ) 
+        try:
+            self.ser.write( self.breakCommand.encode('utf-8') ) 
+            eline = self.ser.readline()
+            edata = eline.decode('utf-8')
+            print( edata ) 
+        except:
+            messagebox.showerror( title="Emargency Stop Error", message= "failed to stop")
 
+
+    def MotorSetting( self ):
+        settingWindow = tk.Tk()
+        settingWindow.geometry('400x200')
+        settingWindow.title('MotorSetting')
+
+        # home is 1x2 (azimuth, elevation)
+        home = []
+        # bounds is 2x2 (lower and upper bound for each direction)
+        bounds = []
+      
+        frame = tk.Frame( settingWindow )
+        currName = tk.Label( frame, text = "Curent Default" )
+        newName = tk.Label( frame, text = "New Default" )
+        currAzi = tk.Label( frame, text = str( self.homeAzi ))
+        currEle = tk.Label( frame, text = str( self.homeEle ))
+        labelAzi = tk.Label( frame, text = "Azimuth ")
+        labelEle = tk.Label( frame, text = " Elevatin ")
+        newhomeAzi = tk.Entry( frame, width = 10 )
+        newhomeEle = tk.Entry( frame, width = 10 )
+
+        currName.grid(row = 0, column = 1, padx = 5, pady = 5)
+        newName.grid(row = 0, column = 2, padx = 5, pady = 5)
+        
+        labelAzi.grid(row = 1, column = 0, padx = 5, pady = 5)
+        currAzi.grid(row = 1, column = 1, padx = 5, pady = 5)
+        newhomeAzi.grid(row = 1, column = 2, padx = 5, pady = 5)
+
+        labelEle.grid(row = 2, column = 0, padx = 5, pady = 5)
+        currEle.grid(row = 2, column = 1, padx = 5, pady = 5)
+        newhomeEle.grid(row = 2, column = 2, padx = 5, pady = 5)
+        frame.pack()
+
+        enterButton = tk.Button( settingWindow, text = "Enter", command = self.updateValues )
+        enterButton.pack()
+        settingWindow.mainloop()
+
+        home = [newhomeAzi.get(),newhomeEle.get()]
+        # home[0] = newhomeAzi.get()
+        # home[1] = newhomeEle.get()
+        return home
+    
+    def updateValues( self ):
+        self.homeAzi = self.MotorSetting[0]
+        self.homeEle = self.MotorSetting[1]
+        print()
 
 class Newwindow():
     def __init__(self):
  
         self.root = tk.Tk()
-        self.root.geometry('400x300')
+        self.root.geometry('500x300')
         self.root.title('DFS-control')
+
+         # create motor from class "Motorcontrol"
+        self.motor = MotorControl( 0 , 90 )
         
         # box for asi ele information 
         self.positions = tk.LabelFrame( self.root, text = "Antenna Position" )
@@ -128,12 +182,9 @@ class Newwindow():
         self.boxFrame = tk.Frame( self.positions )
         self.boxFrame.pack( pady = 10)
 
-        # exit button creation
-        self.exitbutton = tk.Button( self.quickButton , text = "Exit", font = ('Arial', 16 ), command = quit )
-        self.exitbutton.pack( pady = 10)
-
-        # create motor from class "Motorcontrol"
-        self.motor = MotorControl( 0 , 90 )
+        # show motor setting button creation
+        self.motorSettingButton = tk.Button( self.quickButton , text = "Motor Setting", font = ('Arial', 16 ), command = self.motor.MotorSetting )
+        self.motorSettingButton.pack( pady = 10)
 
 
         # motorMessage = self.motor.motorErrorMessage() 
@@ -162,6 +213,11 @@ class Newwindow():
         self.root.mainloop()
 
     def Estop(self):
+         # change port if current port is different from user input 
+        if self.motor.port != self.port_selection.get()[:4]: 
+            portName = self.port_selection.get()
+            self.motor.port = portName[:4]
+            self.motor.portConnection()
         # send serial command to stop moving antenna (JOG OFF)
         self.motor.EmargencyStop()
     
@@ -173,26 +229,22 @@ class Newwindow():
         self.motor.userEle = "0"
         # self.motor.readinput()
 
-    def input(self):
-        # show user values in terminal
-        # print("---------------------------------")
-        # print( "Here are user inputs" )
-        # print( "Azimuth: ",  self.inputAzimuth.get() )
-        # print( "Elevation: ", self.inputElevation.get() )
-        # print ( "COM: ", self.port_selection.get() )
 
-        # update user value in motor class
-        self.motor.userAzi = self.inputAzimuth.get()
-        self.motor.userEle = self.inputElevation.get()
-        self.motor.readinput()
+    def input(self):
 
     # change port if current port is different from user input 
-    # place this fanctionality in portConnection in motor class
         if self.motor.port != self.port_selection.get()[:4]: 
             portName = self.port_selection.get()
             self.motor.port = portName[:4]
             self.motor.portConnection()
-            print("switching port")
-        
+
+        # update user value in motor class
+        self.motor.userAzi = self.inputAzimuth.get()
+        self.motor.userEle = self.inputElevation.get()
+        self.motor.readinput()      
+
+
     def quit(self):
         self.root.destroy()
+
+

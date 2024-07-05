@@ -1,11 +1,12 @@
 import tkinter as tk
-import math
-import time
 import serial
 from tkinter import ttk
 from tkinter.ttk import *
-import functions 
 from functions import *
+import serial.tools.list_ports
+
+
+
 
 
 Newwindow()
