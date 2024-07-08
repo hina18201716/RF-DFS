@@ -139,15 +139,17 @@ class MotorControl:
         enterButton.pack()
         settingWindow.mainloop()
 
-        home = [newhomeAzi.get(),newhomeEle.get()]
-        # home[0] = newhomeAzi.get()
-        # home[1] = newhomeEle.get()
-        return home
+        # home = [newhomeAzi.get(),newhomeEle.get()]
     
     def updateValues( self ):
-        self.homeAzi = self.MotorSetting[0]
-        self.homeEle = self.MotorSetting[1]
-        print()
+        try:
+            self.homeAzi = self.MotorSetting.newhomeAzi.get()
+            # self.homeAzi = self.MotorSetting[0]
+            # self.homeEle = self.MotorSetting[1]
+            print( self.homeAzi , self.homeEle )
+        except: 
+            messagebox.showwarning( title = "Default update error", message= "Failed to update default value" )
+        
 
 class Newwindow():
     def __init__(self):
