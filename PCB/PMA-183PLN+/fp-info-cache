@@ -1,4 +1,4 @@
-22713535706546874
+22716981719779914
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -94053,6 +94053,20 @@ GCPW_osh2_90mm_silk
 0
 footprints.pretty
 GCPW_osh2_90mm_user
+
+
+0
+0
+0
+footprints.pretty
+GCPW_osh3_90mm_silk
+
+
+0
+0
+0
+footprints.pretty
+GCPW_osh3_90mm_user
 
 
 0
