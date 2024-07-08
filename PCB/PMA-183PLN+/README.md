@@ -7,10 +7,12 @@
 - More PTH vias around and directly under RF components.
 - Another layer of via picketing around transmission line.
 - Silkscreen revision indicator.
+- Dimensioning to assembly drawing.
 
 ### Changed
 
 - Removed Hammond 1554B compatibility due to difficulties in assembly and weatherproofing SMA connectors.
+- GCPW dimensions from w = 0.41mm, s = 0.2mm, to w = 0.37mm, s = 0.2mm and added 0.375mm taper from SMA clearance to GCPW clearance.
 
 ### Fixed
 
