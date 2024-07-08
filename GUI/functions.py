@@ -21,6 +21,8 @@ class MotorControl:
         self.port = ''
         self.ser = serial.Serial()
         self.portConnection() 
+        self.command = ""
+        self.nextCommad = ""
 
 # check input type, if both 
     def readinput( self ):
@@ -50,7 +52,11 @@ class MotorControl:
         # move antenna / error popup window
         if isInRange:
             try:
-                self.moveAntenna()
+                self.command = "jog abs x " +  self.userAzi 
+                self.nextCommand = "job abs y " + self.userEle
+                self.sendCommand()
+                self.Azimuth = self.userAzi
+                self.Elevation = self.userEle
             except: 
                 messagebox.showwarning( title = "commanderror" , message = "Failed to connect" )
         else: 
@@ -64,19 +70,12 @@ class MotorControl:
         range = "Azimuth: " + str(self.Azi_bound[0]) + "-" + str(self.Azi_bound[1]) + "\n" + "Elevation: " +  str(self.Ele_bound[0]) + "-" + str(self.Ele_bound[1])
         messagebox.showwarning( title= "Range error", message= "Input must be in range \n" + range ) 
 
-    def moveAntenna( self ):
+    def sendCommand( self ):
 
-        commandY = 'jog abs y '
-        self.ser.write( commandY.encode('utf-8'))
-        line2 = self.ser.readline()
-        data2 = line2.decode('utf-8')
-        print( data2 ) 
+        self.ser.write( self.command.encode('utf-8'))
+        self.ser.write( self.nextCommad.encode('utf-8'))
 
-        self.Azimuth = self.userAzi
-        self.Elevation = self.userEle
-        print ( "position updated")
-
-    def motorErrorMessage( self ):
+    def readLine( self ):
         msg = self.ser.readline()
         if msg.decode('utf-8') != "": 
             return msg.decode('utf-8')
@@ -95,14 +94,35 @@ class MotorControl:
 
     def EmargencyStop( self ):
         try:
-            self.ser.write( self.breakCommand.encode('utf-8') ) 
-            eline = self.ser.readline()
-            edata = eline.decode('utf-8')
-            print( edata ) 
+            self.command = self.breakCommand
+            self.sendCommand()
         except:
             messagebox.showerror( title="Emargency Stop Error", message= "failed to stop")
 
+    def freeInput( self ):
+        def ReadandSend():
+            self.command = inBox.get()
+            try:
+                self.sendCommand()
+            except:
+                messagebox.showwarning( title = "Writing error", message= "failed to send line")
+        freeWriting = tk.Tk() 
+        freeWriting.title("Serial Communication")
 
+        labelInput = tk.Label( freeWriting, text= "Type Input: ")
+        inBox = tk.Entry( freeWriting , width= 50 )
+        enterButton = tk.Button( freeWriting, text = "Enter" , command = ReadandSend )
+
+        labelInput.pack( padx = 10, pady = 5 )
+        inBox.pack( padx = 10, pady = 5 )
+        enterButton.pack( padx = 10, pady = 5)
+
+        freeWriting.mainloop()
+
+
+        
+        # returnLineBox = tk.Label( freeWriting , textvariable = )
+        
     def MotorSetting( self ):
         settingWindow = tk.Tk()
         settingWindow.geometry('400x200')
@@ -185,13 +205,13 @@ class Newwindow():
         self.boxFrame.pack( pady = 10)
 
         # show motor setting button creation
-        self.motorSettingButton = tk.Button( self.quickButton , text = "Motor Setting", font = ('Arial', 16 ), command = self.motor.MotorSetting )
-        self.motorSettingButton.pack( pady = 10)
+        # self.motorSettingButton = tk.Button( self.quickButton , text = "Motor Setting", font = ('Arial', 16 ), command = self.motor.MotorSetting )
+        # self.motorSettingButton.pack( pady = 10)
 
-
-        # motorMessage = self.motor.motorErrorMessage() 
-        # if motorMessage != "":
-        #     messagebox.showinfo( title = "Message from Motor Controller ", message= motorMessage )
+        #free writing window open button
+        self.openFreeWriting = tk.Button( self.quickButton, text = "Open Serial Communication" ,font = ('Arial', 16 ), command= self.freewriting )
+        self.openFreeWriting.pack( pady = 10 )
+        
 
 
         self.azimuth_label = tk.Label( self.boxFrame , text = "Azimuth" )
@@ -213,6 +233,9 @@ class Newwindow():
         self.printbutton.pack( padx = 20, pady = 10, side = tk.LEFT )
 
         self.root.mainloop()
+
+    def freewriting(self):
+        self.motor.freeInput()
 
     def Estop(self):
          # change port if current port is different from user input 
