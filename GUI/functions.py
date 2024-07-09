@@ -17,12 +17,25 @@ class MotorControl:
         self.Ele_bound = Ele_bound
         self.homeAzi = 0
         self.homeEle = 90
-        self.breakCommand = 'jog off x y'
         self.port = ''
         self.ser = serial.Serial()
-        self.portConnection() 
+        self.portConnection()
+
+
+        # commands 
         self.command = ""
         self.nextCommad = ""
+        self.breakCommand = 'jog off x y' 
+        self.moveCommandX = 'jog abs x ' 
+        self.moveCommandY = 'jog abs y '
+
+        # error type
+        self.errorType = "" 
+        self.errorMsg = ""
+        self.rangeError = ["Range Error", "Input is out of Range \n Range: "]
+        self.inputTypeError = ["Input Type Error", "Inputs must be integers"]
+        self.connectionError = ["Connection Error", "Failed to connect/send command to controller"]
+        self.eStopError = ["Emargency Stop Error", "Failed to stop motor"]
 
 # check input type, if both 
     def readinput( self ):
@@ -36,7 +49,9 @@ class MotorControl:
         elif ((self.userAzi).isdigit()) and ((self.userEle).isdigit()):
            self.checkrange()
         else : 
-            self.InputTypeErrorPopup()
+            self.errorType = self.inputTypeError[0]
+            self.errorMsg = self.inputTypeError[1]
+            self.errorPopup()
 
 # chack range of input , popup error message if inout is out of range
     def checkrange( self ): 
@@ -52,23 +67,22 @@ class MotorControl:
         # move antenna / error popup window
         if isInRange:
             try:
-                self.command = "jog abs x " +  self.userAzi 
-                self.nextCommand = "job abs y " + self.userEle
+                self.command = self.moveCommandX + self.userAzi 
+                self.nextCommand = self.moveCommandY + self.userEle
                 self.sendCommand()
                 self.Azimuth = self.userAzi
                 self.Elevation = self.userEle
             except: 
-                messagebox.showwarning( title = "commanderror" , message = "Failed to connect" )
+                self.errorType = self.connectionError[0]
+                self.errorMsg = self.connectionError[1]
+                self.errorPopup()
         else: 
-            self.RangeErrorPopup()
-
+            self.errorType = self.rangeError[0]
+            self.errorMsg = self.rangeError[1] + "Azimuth: " + str(self.Azi_bound[0]) + "-" + str(self.Azi_bound[1]) + "\n" + "Elevation: " +  str(self.Ele_bound[0]) + "-" + str(self.Ele_bound[1])
+            self.errorPopup()
     
-    def InputTypeErrorPopup( self ):
-        messagebox.showwarning( title= "Inout Error" , message= "Input must be numbers")
-
-    def RangeErrorPopup( self ):
-        range = "Azimuth: " + str(self.Azi_bound[0]) + "-" + str(self.Azi_bound[1]) + "\n" + "Elevation: " +  str(self.Ele_bound[0]) + "-" + str(self.Ele_bound[1])
-        messagebox.showwarning( title= "Range error", message= "Input must be in range \n" + range ) 
+    def errorPopup( self ):
+        messagebox.showwarning( title= self.errorType , message= self.errorMsg )
 
     def sendCommand( self ):
 
@@ -90,14 +104,18 @@ class MotorControl:
             try:    
                 self.ser = serial.Serial(port= str( self.port ), baudrate=9600 )
             except:
-                 messagebox.showerror( title = "Port Open Error", message = "Failed to open port connection")    
+                 self.errorType = self.connectionError[0]
+                 self.errorMsg = self.connectionError[1]
+                 self.errorPopup() 
 
     def EmargencyStop( self ):
         try:
             self.command = self.breakCommand
             self.sendCommand()
         except:
-            messagebox.showerror( title="Emargency Stop Error", message= "failed to stop")
+            self.errorType = self.eStopError[0]
+            self.errorMsg = self.eStopError[1]
+            self.errorPopup(0)
 
     def freeInput( self ):
         def ReadandSend():
@@ -105,7 +123,10 @@ class MotorControl:
             try:
                 self.sendCommand()
             except:
-                messagebox.showwarning( title = "Writing error", message= "failed to send line")
+                self.errorType = self.connectionError[0]
+                self.errorMsg = self.connectionError[1]
+                self.errorPopup()
+
         freeWriting = tk.Tk() 
         freeWriting.title("Serial Communication")
 
@@ -123,52 +144,52 @@ class MotorControl:
         
         # returnLineBox = tk.Label( freeWriting , textvariable = )
         
-    def MotorSetting( self ):
-        settingWindow = tk.Tk()
-        settingWindow.geometry('400x200')
-        settingWindow.title('MotorSetting')
+    # def MotorSetting( self ):
+    #     settingWindow = tk.Tk()
+    #     settingWindow.geometry('400x200')
+    #     settingWindow.title('MotorSetting')
 
-        # home is 1x2 (azimuth, elevation)
-        home = []
-        # bounds is 2x2 (lower and upper bound for each direction)
-        bounds = []
+    #     # home is 1x2 (azimuth, elevation)
+    #     home = []
+    #     # bounds is 2x2 (lower and upper bound for each direction)
+    #     bounds = []
       
-        frame = tk.Frame( settingWindow )
-        currName = tk.Label( frame, text = "Curent Default" )
-        newName = tk.Label( frame, text = "New Default" )
-        currAzi = tk.Label( frame, text = str( self.homeAzi ))
-        currEle = tk.Label( frame, text = str( self.homeEle ))
-        labelAzi = tk.Label( frame, text = "Azimuth ")
-        labelEle = tk.Label( frame, text = " Elevatin ")
-        newhomeAzi = tk.Entry( frame, width = 10 )
-        newhomeEle = tk.Entry( frame, width = 10 )
+    #     frame = tk.Frame( settingWindow )
+    #     currName = tk.Label( frame, text = "Curent Default" )
+    #     newName = tk.Label( frame, text = "New Default" )
+    #     currAzi = tk.Label( frame, text = str( self.homeAzi ))
+    #     currEle = tk.Label( frame, text = str( self.homeEle ))
+    #     labelAzi = tk.Label( frame, text = "Azimuth ")
+    #     labelEle = tk.Label( frame, text = " Elevatin ")
+    #     newhomeAzi = tk.Entry( frame, width = 10 )
+    #     newhomeEle = tk.Entry( frame, width = 10 )
 
-        currName.grid(row = 0, column = 1, padx = 5, pady = 5)
-        newName.grid(row = 0, column = 2, padx = 5, pady = 5)
+    #     currName.grid(row = 0, column = 1, padx = 5, pady = 5)
+    #     newName.grid(row = 0, column = 2, padx = 5, pady = 5)
         
-        labelAzi.grid(row = 1, column = 0, padx = 5, pady = 5)
-        currAzi.grid(row = 1, column = 1, padx = 5, pady = 5)
-        newhomeAzi.grid(row = 1, column = 2, padx = 5, pady = 5)
+    #     labelAzi.grid(row = 1, column = 0, padx = 5, pady = 5)
+    #     currAzi.grid(row = 1, column = 1, padx = 5, pady = 5)
+    #     newhomeAzi.grid(row = 1, column = 2, padx = 5, pady = 5)
 
-        labelEle.grid(row = 2, column = 0, padx = 5, pady = 5)
-        currEle.grid(row = 2, column = 1, padx = 5, pady = 5)
-        newhomeEle.grid(row = 2, column = 2, padx = 5, pady = 5)
-        frame.pack()
+    #     labelEle.grid(row = 2, column = 0, padx = 5, pady = 5)
+    #     currEle.grid(row = 2, column = 1, padx = 5, pady = 5)
+    #     newhomeEle.grid(row = 2, column = 2, padx = 5, pady = 5)
+    #     frame.pack()
 
-        enterButton = tk.Button( settingWindow, text = "Enter", command = self.updateValues )
-        enterButton.pack()
-        settingWindow.mainloop()
+    #     enterButton = tk.Button( settingWindow, text = "Enter", command = self.updateValues )
+    #     enterButton.pack()
+    #     settingWindow.mainloop()
 
-        # home = [newhomeAzi.get(),newhomeEle.get()]
+    #     # home = [newhomeAzi.get(),newhomeEle.get()]
     
-    def updateValues( self ):
-        try:
-            self.homeAzi = self.MotorSetting.newhomeAzi.get()
-            # self.homeAzi = self.MotorSetting[0]
-            # self.homeEle = self.MotorSetting[1]
-            print( self.homeAzi , self.homeEle )
-        except: 
-            messagebox.showwarning( title = "Default update error", message= "Failed to update default value" )
+    # def updateValues( self ):
+    #     try:
+    #         self.homeAzi = self.MotorSetting.newhomeAzi.get()
+    #         # self.homeAzi = self.MotorSetting[0]
+    #         # self.homeEle = self.MotorSetting[1]
+    #         print( self.homeAzi , self.homeEle )
+    #     except: 
+    #         messagebox.showwarning( title = "Default update error", message= "Failed to update default value" )
         
 
 class Newwindow():
