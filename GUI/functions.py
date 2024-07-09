@@ -27,6 +27,7 @@ class MotorControl:
         self.breakCommand = 'jog off x y' 
         self.moveCommandX = 'jog abs x ' 
         self.moveCommandY = 'jog abs y '
+        self.startCommand = ['Prog 0', 'drive on x y']
 
         # error type
         self.errorType = "" 
@@ -88,7 +89,6 @@ class MotorControl:
             self.nextCommand = ""
             print("command sent")
             self.readLine()
-            self.readLine()
 
         except:
             self.errorType = self.connectionError[0]
@@ -98,9 +98,12 @@ class MotorControl:
 
     def readLine( self ):
         msg = self.ser.readline()
-        if msg.decode('utf-8') != "": 
-            print(msg)
-
+        message = msg.decode('utf-8') 
+        if message != "": 
+            print(message)
+            print("-------------------")
+        return message
+    
     def portConnection( self ):
         if self.port != '':
             # print( "port was changed to " + self.port)
@@ -108,6 +111,12 @@ class MotorControl:
                 self.ser.close()
             try:    
                 self.ser = serial.Serial(port= str( self.port ), baudrate=9600 )
+                print( "typing in setting commands" )
+                # # self.ser.write("\r\n")
+                # self.ser.write( self.startCommand[0] )
+                # # if self.readLine() = 
+                # self.ser.write( self.startCommand[1] )
+                print( "communication to motor controller is ready")
             except:
                  self.errorType = self.connectionError[0]
                  self.errorMsg = self.connectionError[1]
@@ -191,7 +200,7 @@ class MotorControl:
     #     except: 
     #         messagebox.showwarning( title = "Default update error", message= "Failed to update default value" )
         
-# ########################################################################################################################################
+########################################################################################################################################
 class Newwindow():
     def __init__(self):
  
@@ -275,7 +284,6 @@ class Newwindow():
         self.motor.Park()
 
     def input(self):
-
     # change port if current port is different from user input 
         if self.motor.port != self.port_selection.get()[:4]: 
             portName = self.port_selection.get()
