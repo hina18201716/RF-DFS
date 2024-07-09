@@ -8,7 +8,7 @@ import serial.tools.list_ports
 
 class MotorControl: 
 
-    def __init__(self, Azimuth, Elevation, userAzi = 0, userEle = 0, Azi_bound = [0,360], Ele_bound = [0,180] ): 
+    def __init__(self, Azimuth, Elevation, userAzi = 0, userEle = 0, Azi_bound = [0,360], Ele_bound = [0,120] ): 
         self.Azimuth = Azimuth
         self.Elevation = Elevation
         self.userAzi = userAzi
@@ -22,9 +22,10 @@ class MotorControl:
         self.portConnection()
 
         # commands 
-        self.command = ""
+        self.commandToSend = ""
         self.nextCommand = ""
         self.breakCommand = 'jog off x y' 
+        self.commandGen = 'jog abs'
         self.moveCommandX = 'jog abs x ' 
         self.moveCommandY = 'jog abs y '
         self.startCommand = ['Prog 0', 'drive on x y']
@@ -67,7 +68,7 @@ class MotorControl:
 
         # move antenna / error popup window
         if isInRange:
-            self.command = self.moveCommandX + self.userAzi 
+            self.commandToSend= self.moveCommandX + self.userAzi 
             self.nextCommand = self.moveCommandY + self.userEle
             self.sendCommand()
             self.Azimuth = self.userAzi
@@ -82,10 +83,10 @@ class MotorControl:
 
     def sendCommand( self ):
         try: 
-            self.ser.write( self.command.encode('utf-8'))
+            self.ser.write( self.commandToSend.encode('utf-8'))
             if self.nextCommand != "":
                 self.ser.write( self.nextCommand.encode('utf-8'))
-            self.comamnd = ""
+            self.commandToSend = ""
             self.nextCommand = ""
             print("command sent")
             self.readLine()
@@ -123,31 +124,39 @@ class MotorControl:
                  self.errorPopup() 
 
     def EmargencyStop( self ):
-        self.command = self.breakCommand
+        self.commandToSend = self.breakCommand
         self.sendCommand()
      
     def Park( self ):
-        self.command = self.moveCommandX + str( self.homeAzi )
-        self.nextCommand = self.moveCommandY + str( self.homeEle )
+        self.commandToSend = self.commandGen + " x "+ str( self.homeAzi ) + " y " + str( self.homeEle )
         self.sendCommand()
     
 
     def freeInput( self ):
         def ReadandSend():
-            self.command = inBox.get()
+            self.commandToSend = inBox.get()
             self.sendCommand()
-          
-
+            update()
+        
+        def update(): 
+            # current = returnLineBox["Text"]
+            line = self.ser.readline()
+            if line.decode != '':
+                returnLineBox["text"] = line.decode('utf-8')
+        
         freeWriting = tk.Tk() 
         freeWriting.title("Serial Communication")
 
         labelInput = tk.Label( freeWriting, text= "Type Input: ")
         inBox = tk.Entry( freeWriting , width= 50 )
         enterButton = tk.Button( freeWriting , text = "Enter" , command = ReadandSend )
+        returnLineBox = tk.Label( freeWriting , text = 'hi')
 
         labelInput.pack( padx = 10, pady = 5 )
-        inBox.pack( padx = 10, pady = 5 )
-        enterButton.pack( padx = 10, pady = 5)
+        inBox.pack( side = 'left', padx = 10, pady = 5 )
+        enterButton.pack( side = 'right' ,padx = 10, pady = 5)
+        returnLineBox.pack( padx = 10, pady = 5 )
+
 
         freeWriting.mainloop()
         # returnLineBox = tk.Label( freeWriting , textvariable = )
