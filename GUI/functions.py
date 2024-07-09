@@ -39,11 +39,12 @@ class MotorControl:
 # check input type, if both 
     def readinput( self ):
         #  branck set to be current value
+        # print ( type(self.userAzi, self.Azimuth) )
         if self.userAzi == "":
-            self.userAzi = self.Azimuth
+            self.userAzi = str ( self.Azimuth )
         if self.userEle == "":
-            self.userEle = self.Elevation
-
+            self.userEle = str( self.Elevation )
+        
         # digit -> check range / not digit -> error pop up
         elif ((self.userAzi).isdigit()) and ((self.userEle).isdigit()):
            self.checkrange()
@@ -85,6 +86,8 @@ class MotorControl:
                 self.ser.write( self.nextCommand.encode('utf-8'))
             self.comamnd = ""
             self.nextCommand = ""
+            print("command sent")
+            self.readLine()
         except:
             self.errorType = self.connectionError[0]
             self.errorMsg = self.connectionError[1]
@@ -94,7 +97,7 @@ class MotorControl:
     def readLine( self ):
         msg = self.ser.readline()
         if msg.decode('utf-8') != "": 
-            return msg.decode('utf-8')
+            print(msg)
 
     def portConnection( self ):
         if self.port != '':
@@ -188,7 +191,7 @@ class MotorControl:
     #     except: 
     #         messagebox.showwarning( title = "Default update error", message= "Failed to update default value" )
         
-
+# ########################################################################################################################################
 class Newwindow():
     def __init__(self):
  
