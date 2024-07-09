@@ -1,9 +1,8 @@
 import tkinter as tk
-import serial
 from tkinter import ttk
 from tkinter.ttk import *
 from functions import *
-import serial.tools.list_ports
+
 
 
 

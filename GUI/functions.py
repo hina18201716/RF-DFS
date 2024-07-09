@@ -214,7 +214,6 @@ class Newwindow():
     def __init__(self):
  
         self.root = tk.Tk()
-        self.root.geometry('500x300')
         self.root.title('DFS-control')
 
          # create motor from class "Motorcontrol"
@@ -260,16 +259,16 @@ class Newwindow():
         self.inputAzimuth = tk.Entry( self.boxFrame, width= 10 )
         self.inputElevation = tk.Entry( self.boxFrame, width= 10 )
 
-        self.azimuth_label.grid( row = 0, column = 0 )
-        self.elevation_label.grid( row = 1, column = 0 )
+        self.azimuth_label.grid( row = 0, column = 0, padx = 10 )
+        self.elevation_label.grid( row = 1, column = 0, padx = 10 )
         # self.current_azimuth.grid( row = 0, column = 1, padx = 10 )
         # self.current_elevation.grid( row = 1, column = 1, padx = 10 )
-        self.inputAzimuth.grid( row = 0, column = 2, padx = 5 )
-        self.inputElevation.grid( row = 1, column = 2, padx = 5 )
+        self.inputAzimuth.grid( row = 0, column = 2, padx = 10 )
+        self.inputElevation.grid( row = 1, column = 2, padx = 10 )
 
         # enter button creation
         self.printbutton = tk.Button( self.positions, text = "Enter", command = self.input )
-        self.printbutton.pack( padx = 20, pady = 10, side = tk.LEFT )
+        self.printbutton.pack( padx = 20, pady = 10, side = 'right' )
 
         self.root.mainloop()
 
