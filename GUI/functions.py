@@ -21,10 +21,9 @@ class MotorControl:
         self.ser = serial.Serial()
         self.portConnection()
 
-
         # commands 
         self.command = ""
-        self.nextCommad = ""
+        self.nextCommand = ""
         self.breakCommand = 'jog off x y' 
         self.moveCommandX = 'jog abs x ' 
         self.moveCommandY = 'jog abs y '
@@ -66,16 +65,11 @@ class MotorControl:
 
         # move antenna / error popup window
         if isInRange:
-            try:
-                self.command = self.moveCommandX + self.userAzi 
-                self.nextCommand = self.moveCommandY + self.userEle
-                self.sendCommand()
-                self.Azimuth = self.userAzi
-                self.Elevation = self.userEle
-            except: 
-                self.errorType = self.connectionError[0]
-                self.errorMsg = self.connectionError[1]
-                self.errorPopup()
+            self.command = self.moveCommandX + self.userAzi 
+            self.nextCommand = self.moveCommandY + self.userEle
+            self.sendCommand()
+            self.Azimuth = self.userAzi
+            self.Elevation = self.userEle
         else: 
             self.errorType = self.rangeError[0]
             self.errorMsg = self.rangeError[1] + "Azimuth: " + str(self.Azi_bound[0]) + "-" + str(self.Azi_bound[1]) + "\n" + "Elevation: " +  str(self.Ele_bound[0]) + "-" + str(self.Ele_bound[1])
@@ -85,9 +79,17 @@ class MotorControl:
         messagebox.showwarning( title= self.errorType , message= self.errorMsg )
 
     def sendCommand( self ):
+        try: 
+            self.ser.write( self.command.encode('utf-8'))
+            if self.nextCommand != "":
+                self.ser.write( self.nextCommand.encode('utf-8'))
+            self.comamnd = ""
+            self.nextCommand = ""
+        except:
+            self.errorType = self.connectionError[0]
+            self.errorMsg = self.connectionError[1]
+            self.errorPopup()
 
-        self.ser.write( self.command.encode('utf-8'))
-        self.ser.write( self.nextCommad.encode('utf-8'))
 
     def readLine( self ):
         msg = self.ser.readline()
@@ -95,12 +97,10 @@ class MotorControl:
             return msg.decode('utf-8')
 
     def portConnection( self ):
-
         if self.port != '':
             # print( "port was changed to " + self.port)
             if self.ser.isOpen():
                 self.ser.close()
-
             try:    
                 self.ser = serial.Serial(port= str( self.port ), baudrate=9600 )
             except:
@@ -109,23 +109,20 @@ class MotorControl:
                  self.errorPopup() 
 
     def EmargencyStop( self ):
-        try:
-            self.command = self.breakCommand
-            self.sendCommand()
-        except:
-            self.errorType = self.eStopError[0]
-            self.errorMsg = self.eStopError[1]
-            self.errorPopup(0)
+        self.command = self.breakCommand
+        self.sendCommand()
+     
+    def Park( self ):
+        self.command = self.moveCommandX + str( self.homeAzi )
+        self.nextCommand = self.moveCommandY + str( self.homeEle )
+        self.sendCommand()
+    
 
     def freeInput( self ):
         def ReadandSend():
             self.command = inBox.get()
-            try:
-                self.sendCommand()
-            except:
-                self.errorType = self.connectionError[0]
-                self.errorMsg = self.connectionError[1]
-                self.errorPopup()
+            self.sendCommand()
+          
 
         freeWriting = tk.Tk() 
         freeWriting.title("Serial Communication")
@@ -268,13 +265,11 @@ class Newwindow():
         self.motor.EmargencyStop()
     
     def park( self ):
-        print( "Park antenna to default position" )
-        # send serial command to move antenna to home ( JOG HOME / JOG abs x 0 & JOG abs y 0 )
-        # set default parameter 
-        self.motor.userAzi = "0"
-        self.motor.userEle = "0"
-        # self.motor.readinput()
-
+        if self.motor.port != self.port_selection.get()[:4]: 
+            portName = self.port_selection.get()
+            self.motor.port = portName[:4]
+            self.motor.portConnection()
+        self.motor.Park()
 
     def input(self):
 
