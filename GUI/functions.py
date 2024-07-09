@@ -88,6 +88,8 @@ class MotorControl:
             self.nextCommand = ""
             print("command sent")
             self.readLine()
+            self.readLine()
+
         except:
             self.errorType = self.connectionError[0]
             self.errorMsg = self.connectionError[1]
@@ -132,17 +134,15 @@ class MotorControl:
 
         labelInput = tk.Label( freeWriting, text= "Type Input: ")
         inBox = tk.Entry( freeWriting , width= 50 )
-        enterButton = tk.Button( freeWriting, text = "Enter" , command = ReadandSend )
+        enterButton = tk.Button( freeWriting , text = "Enter" , command = ReadandSend )
 
         labelInput.pack( padx = 10, pady = 5 )
         inBox.pack( padx = 10, pady = 5 )
         enterButton.pack( padx = 10, pady = 5)
 
         freeWriting.mainloop()
-
-
-        
         # returnLineBox = tk.Label( freeWriting , textvariable = )
+        
         
     # def MotorSetting( self ):
     #     settingWindow = tk.Tk()
