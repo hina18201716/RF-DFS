@@ -9,34 +9,34 @@ import serial.tools.list_ports
 class MotorControl: 
 
     def __init__(self, Azimuth, Elevation, userAzi = 0, userEle = 0, Azi_bound = [0,360], Ele_bound = [0,120] ): 
-        self.Azimuth = Azimuth
-        self.Elevation = Elevation
-        self.userAzi = userAzi
-        self.userEle = userEle
-        self.Azi_bound = Azi_bound
-        self.Ele_bound = Ele_bound
-        self.homeAzi = 0
-        self.homeEle = 90
-        self.port = ''
-        self.ser = serial.Serial()
+        self.Azimuth    = Azimuth
+        self.Elevation  = Elevation
+        self.userAzi    = userAzi
+        self.userEle    = userEle
+        self.Azi_bound  = Azi_bound
+        self.Ele_bound  = Ele_bound
+        self.homeAzi    = 0
+        self.homeEle    = 90
+        self.port       = ''
+        self.ser        = serial.Serial()
         self.portConnection()
 
         # commands 
-        self.commandToSend = ""
-        self.nextCommand = ""
-        self.breakCommand = 'jog off x y' 
-        self.commandGen = 'jog abs'
-        self.moveCommandX = 'jog abs x ' 
-        self.moveCommandY = 'jog abs y '
-        self.startCommand = ['Prog 0', 'drive on x y']
+        self.commandToSend  = ""
+        self.nextCommand    = ""
+        self.breakCommand   = 'jog off x y' 
+        self.commandGen     = 'jog abs'
+        self.moveCommandX   = 'jog abs x ' 
+        self.moveCommandY   = 'jog abs y '
+        self.startCommand   = ['Prog 0', 'drive on x y']
 
         # error type
-        self.errorType = "" 
-        self.errorMsg = ""
-        self.rangeError = ["Range Error", "Input is out of Range \n Range: "]
-        self.inputTypeError = ["Input Type Error", "Inputs must be integers"]
-        self.connectionError = ["Connection Error", "Failed to connect/send command to controller"]
-        self.eStopError = ["Emargency Stop Error", "Failed to stop motor"]
+        self.errorType          = "" 
+        self.errorMsg           = ""
+        self.rangeError         = ["Range Error", "Input is out of Range \n Range: "]
+        self.inputTypeError     = ["Input Type Error", "Inputs must be integers"]
+        self.connectionError    = ["Connection Error", "Failed to connect/send command to controller"]
+        self.eStopError         = ["Emargency Stop Error", "Failed to stop motor"]
 
 # check input type, if both 
     def readinput( self ):
@@ -68,8 +68,9 @@ class MotorControl:
 
         # move antenna / error popup window
         if isInRange:
-            self.commandToSend= self.moveCommandX + self.userAzi 
-            self.nextCommand = self.moveCommandY + self.userEle
+            # self.commandToSend= self.moveCommandX + self.userAzi 
+            # self.nextCommand = self.moveCommandY + self.userEle
+            self.commandToSend = self.commandGen + " x " + self.userAzi + " y " + self.userEle 
             self.sendCommand()
             self.Azimuth = self.userAzi
             self.Elevation = self.userEle
@@ -140,17 +141,24 @@ class MotorControl:
         
         def update(): 
             # current = returnLineBox["Text"]
-            line = self.ser.readline()
-            if line.decode != '':
-                returnLineBox["text"] = line.decode('utf-8')
-        
+            print("current label" + returnLineBox["text"])
+            try:
+                line = self.ser.readline()
+                if line.decode != '':
+                    returnLineBox["text"] = line.decode('utf-8')
+                print("new label" + returnLineBox["text"])
+            except:
+                self.errorType = self.connectionError[0]
+                self.errorMsg = self.connectionError[1]
+                self.errorPopup()
+
         freeWriting = tk.Tk() 
         freeWriting.title("Serial Communication")
 
-        labelInput = tk.Label( freeWriting, text= "Type Input: ")
-        inBox = tk.Entry( freeWriting , width= 50 )
-        enterButton = tk.Button( freeWriting , text = "Enter" , command = ReadandSend )
-        returnLineBox = tk.Label( freeWriting , text = 'hi')
+        labelInput      = tk.Label( freeWriting, text= "Type Input: ")
+        inBox           = tk.Entry( freeWriting , width= 50 )
+        enterButton     = tk.Button( freeWriting , text = "Enter" , command = ReadandSend )
+        returnLineBox   = tk.Label( freeWriting , text = 'hi')
 
         labelInput.pack( padx = 10, pady = 5 )
         inBox.pack( side = 'left', padx = 10, pady = 5 )
@@ -159,7 +167,7 @@ class MotorControl:
 
 
         freeWriting.mainloop()
-        # returnLineBox = tk.Label( freeWriting , textvariable = )
+        
         
         
     # def MotorSetting( self ):
@@ -220,44 +228,38 @@ class Newwindow():
         self.motor = MotorControl( 0 , 90 )
         
         # box for asi ele information 
-        self.positions = tk.LabelFrame( self.root, text = "Antenna Position" )
+        self.positions      = tk.LabelFrame( self.root, text = "Antenna Position" )
+        self.quickButton    = tk.Frame( self.root )
+
         self.positions.grid( row = 1, column = 0 , padx = 20 , pady = 10)
-        self.quickButton = tk.Frame( self.root  )
         self.quickButton.grid( row = 1, column= 1 , padx = 20 , pady = 10)
 
         # port selection
-        ports = list( serial.tools.list_ports.comports() ) 
-        self.port_selection = ttk.Combobox( self.root , values = ports )
+        ports                   = list( serial.tools.list_ports.comports() ) 
+        self.port_selection     = ttk.Combobox( self.root , values = ports )
         self.port_selection.grid(row = 0, column= 0 , padx = 20 , pady = 10)
 
-        # emargency stop button creation
-        self.EmargencyStop = tk.Button( self.quickButton, text = "Emargency Stop", font = ('Arial', 16 ) , bg = 'red', fg = 'white' , command= self.Estop )
+        # buttons : estop, park, free writing window
+        self.EmargencyStop      = tk.Button( self.quickButton, text = "Emargency Stop", font = ('Arial', 16 ) , bg = 'red', fg = 'white' , command= self.Estop )
+        self.Park               = tk.Button( self.quickButton, text = "Park", font = ('Arial', 16) , bg = 'blue', fg = 'white' , command = self.park )
+        self.openFreeWriting    = tk.Button( self.quickButton, text = "Open Serial Communication" ,font = ('Arial', 16 ), command= self.freewriting )
+        self.motorSettingButton = tk.Button( self.quickButton , text = "Motor Setting", font = ('Arial', 16 ), command = self.motor.MotorSetting )
+        
         self.EmargencyStop.pack()
-
-        # park button creation
-        self.Park = tk.Button( self.quickButton, text = "Park", font = ('Arial', 16) , bg = 'blue', fg = 'white' , command = self.park )
         self.Park.pack( pady = 10 )
+        self.openFreeWriting.pack( pady = 10 )
+        self.motorSettingButton.pack( pady = 10)
 
         # azi,ele input boxes creation
-        self.boxFrame = tk.Frame( self.positions )
+        self.boxFrame           = tk.Frame( self.positions )
         self.boxFrame.pack( pady = 10)
 
-        # show motor setting button creation
-        # self.motorSettingButton = tk.Button( self.quickButton , text = "Motor Setting", font = ('Arial', 16 ), command = self.motor.MotorSetting )
-        # self.motorSettingButton.pack( pady = 10)
-
-        #free writing window open button
-        self.openFreeWriting = tk.Button( self.quickButton, text = "Open Serial Communication" ,font = ('Arial', 16 ), command= self.freewriting )
-        self.openFreeWriting.pack( pady = 10 )
-        
-
-
-        self.azimuth_label = tk.Label( self.boxFrame , text = "Azimuth" )
-        self.elevation_label = tk.Label( self.boxFrame , text = "Elevation")
+        self.azimuth_label      = tk.Label( self.boxFrame , text = "Azimuth" )
+        self.elevation_label    = tk.Label( self.boxFrame , text = "Elevation")
         # self.current_azimuth = tk.Label( self.boxFrame, text = self.motor.Azimuth )
         # self.current_elevation = tk.Label( self.boxFrame, text = self.motor.Elevation )
-        self.inputAzimuth = tk.Entry( self.boxFrame, width= 10 )
-        self.inputElevation = tk.Entry( self.boxFrame, width= 10 )
+        self.inputAzimuth       = tk.Entry( self.boxFrame, width= 10 )
+        self.inputElevation     = tk.Entry( self.boxFrame, width= 10 )
 
         self.azimuth_label.grid( row = 0, column = 0, padx = 10 )
         self.elevation_label.grid( row = 1, column = 0, padx = 10 )
@@ -267,7 +269,7 @@ class Newwindow():
         self.inputElevation.grid( row = 1, column = 2, padx = 10 )
 
         # enter button creation
-        self.printbutton = tk.Button( self.positions, text = "Enter", command = self.input )
+        self.printbutton        = tk.Button( self.positions, text = "Enter", command = self.input )
         self.printbutton.pack( padx = 20, pady = 10, side = 'right' )
 
         self.root.mainloop()
