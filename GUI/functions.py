@@ -161,7 +161,7 @@ class MotorControl:
         freeWriting.mainloop()
         
         
-        
+#######################################################################################################################################
     # def MotorSetting( self ):
     #     settingWindow = tk.Tk()
     #     settingWindow.geometry('400x200')
@@ -235,12 +235,12 @@ class Newwindow():
         self.EmargencyStop      = tk.Button( self.quickButton, text = "Emargency Stop", font = ('Arial', 16 ) , bg = 'red', fg = 'white' , command= self.Estop )
         self.Park               = tk.Button( self.quickButton, text = "Park", font = ('Arial', 16) , bg = 'blue', fg = 'white' , command = self.park )
         self.openFreeWriting    = tk.Button( self.quickButton, text = "Open Serial Communication" ,font = ('Arial', 16 ), command= self.freewriting )
-        self.motorSettingButton = tk.Button( self.quickButton , text = "Motor Setting", font = ('Arial', 16 ), command = self.motor.MotorSetting )
+        # self.motorSettingButton = tk.Button( self.quickButton , text = "Motor Setting", font = ('Arial', 16 ), command = self.motor.MotorSetting )
         
         self.EmargencyStop.pack()
         self.Park.pack( pady = 10 )
         self.openFreeWriting.pack( pady = 10 )
-        self.motorSettingButton.pack( pady = 10)
+        # self.motorSettingButton.pack( pady = 10)
 
         # azi,ele input boxes creation
         self.boxFrame           = tk.Frame( self.positions )
