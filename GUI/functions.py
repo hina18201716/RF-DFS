@@ -38,47 +38,6 @@ class MotorControl:
         self.connectionError    = ["Connection Error", "Failed to connect/send command to controller"]
         self.eStopError         = ["Emargency Stop Error", "Failed to stop motor"]
 
-# check input type, if both 
-    def readinput( self ):
-        #  branck set to be current value
-        # print ( type(self.userAzi, self.Azimuth) )
-        if self.userAzi == "":
-            self.userAzi = str ( self.Azimuth )
-        if self.userEle == "":
-            self.userEle = str( self.Elevation )
-        
-        # digit -> check range / not digit -> error pop up
-        elif ((self.userAzi).isdigit()) and ((self.userEle).isdigit()):
-           self.checkrange()
-        else : 
-            self.errorType = self.inputTypeError[0]
-            self.errorMsg = self.inputTypeError[1]
-            self.errorPopup()
-
-# chack range of input , popup error message if inout is out of range
-    def checkrange( self ): 
-        isInRange = True
-        self.IntUserAzi = int(self.userAzi)
-        self.IntUserEle = int(self.userEle)
-
-        if self.IntUserAzi < self.Azi_bound[0] or self.IntUserAzi > self.Azi_bound[1]:
-            isInRange = False
-        if self.IntUserEle < self.Ele_bound[0] or self.IntUserEle > self.Ele_bound[1]:
-            isInRange = False
-
-        # move antenna / error popup window
-        if isInRange:
-            # self.commandToSend= self.moveCommandX + self.userAzi 
-            # self.nextCommand = self.moveCommandY + self.userEle
-            self.commandToSend = self.commandGen + " x " + self.userAzi + " y " + self.userEle 
-            self.sendCommand()
-            self.Azimuth = self.userAzi
-            self.Elevation = self.userEle
-        else: 
-            self.errorType = self.rangeError[0]
-            self.errorMsg = self.rangeError[1] + "Azimuth: " + str(self.Azi_bound[0]) + "-" + str(self.Azi_bound[1]) + "\n" + "Elevation: " +  str(self.Ele_bound[0]) + "-" + str(self.Ele_bound[1])
-            self.errorPopup()
-    
     def errorPopup( self ):
         messagebox.showwarning( title= self.errorType , message= self.errorMsg )
 
@@ -105,10 +64,43 @@ class MotorControl:
             print(message)
             print("-------------------")
         return message
-    
+
+    def readUserInput( self ):
+        if self.userAzi == "":
+            self.userAzi = str ( self.Azimuth )
+        if self.userEle == "":
+            self.userEle = str( self.Elevation )
+        elif ((self.userAzi).isdigit()) and ((self.userEle).isdigit()):
+           self.checkrange()
+        else : 
+            self.errorType = self.inputTypeError[0]
+            self.errorMsg = self.inputTypeError[1]
+            self.errorPopup()
+
+    def checkrange( self ): 
+        isInRange = True
+        self.IntUserAzi = int(self.userAzi)
+        self.IntUserEle = int(self.userEle)
+
+        if self.IntUserAzi < self.Azi_bound[0] or self.IntUserAzi > self.Azi_bound[1]:
+            isInRange = False
+        if self.IntUserEle < self.Ele_bound[0] or self.IntUserEle > self.Ele_bound[1]:
+            isInRange = False
+        if isInRange:
+            # self.commandToSend= self.moveCommandX + self.userAzi 
+            # self.nextCommand = self.moveCommandY + self.userEle
+            self.commandToSend = self.commandGen + " x " + self.userAzi + " y " + self.userEle 
+            self.sendCommand()
+            self.Azimuth = self.userAzi
+            self.Elevation = self.userEle
+        else: 
+            self.errorType = self.rangeError[0]
+            self.errorMsg = self.rangeError[1] + "Azimuth: " + str(self.Azi_bound[0]) + "-" + str(self.Azi_bound[1]) + "\n" + "Elevation: " +  str(self.Ele_bound[0]) + "-" + str(self.Ele_bound[1])
+            self.errorPopup()
+   
     def portConnection( self ):
         if self.port != '':
-            # print( "port was changed to " + self.port)
+           
             if self.ser.isOpen():
                 self.ser.close()
             try:    
@@ -129,7 +121,7 @@ class MotorControl:
         self.sendCommand()
      
     def Park( self ):
-        self.commandToSend = self.commandGen + " x "+ str( self.homeAzi ) + " y " + str( self.homeEle )
+        self.commandToSend = self.commandGen + " x " + str( self.homeAzi ) + " y " + str( self.homeEle )
         self.sendCommand()
     
 
@@ -278,12 +270,12 @@ class Newwindow():
         self.motor.freeInput()
 
     def Estop(self):
-         # change port if current port is different from user input 
+        
         if self.motor.port != self.port_selection.get()[:4]: 
             portName = self.port_selection.get()
             self.motor.port = portName[:4]
             self.motor.portConnection()
-        # send serial command to stop moving antenna (JOG OFF)
+       
         self.motor.EmargencyStop()
     
     def park( self ):
@@ -294,16 +286,15 @@ class Newwindow():
         self.motor.Park()
 
     def input(self):
-    # change port if current port is different from user input 
+    
         if self.motor.port != self.port_selection.get()[:4]: 
             portName = self.port_selection.get()
             self.motor.port = portName[:4]
             self.motor.portConnection()
 
-        # update user value in motor class
         self.motor.userAzi = self.inputAzimuth.get()
         self.motor.userEle = self.inputElevation.get()
-        self.motor.readinput()      
+        self.motor.readUserInput()      
 
 
     def quit(self):
