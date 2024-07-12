@@ -7,9 +7,7 @@ from functions import *
 
 
 
-
-Newwindow()
-
+FrontEnd()
 
 # def codeerror():
 #     # show error message when ACR9000 pass error2

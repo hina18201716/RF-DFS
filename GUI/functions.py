@@ -210,37 +210,56 @@ class MotorControl:
     #         messagebox.showwarning( title = "Default update error", message= "Failed to update default value" )
         
 ########################################################################################################################################
-class Newwindow():
+class FrontEnd():
     def __init__(self):
- 
+        """Initializes the top level tkinter interface
+        """
         self.root = tk.Tk()
         self.root.title('DFS-control')
+
+        tabControl = ttk.Notebook(self.root) 
+  
+        self.tab1 = ttk.Frame(tabControl) 
+        self.tab2 = ttk.Frame(tabControl) 
+
+        tabControl.add(self.tab1, text ='Tab 1') 
+        tabControl.add(self.tab2, text ='Tab 2') 
+        tabControl.pack(expand = 1, fill ="both") 
+
+        self.serialInterface()
+        self.root.mainloop()
+
+    def serialInterface(self):
+        """Generates the serial communication interface on the developer's tab of choice at tabSelect
+        """
+
+        tabSelect = self.tab1   # Select which tab this interface should be placed
 
          # create motor from class "Motorcontrol"
         self.motor = MotorControl( 0 , 90 )
         
         # box for asi ele information 
-        self.positions      = tk.LabelFrame( self.root, text = "Antenna Position" )
-        self.quickButton    = tk.Frame( self.root )
+        self.positions      = tk.LabelFrame( tabSelect, text = "Antenna Position" )
+        self.quickButton    = tk.Frame( tabSelect )
 
         self.positions.grid( row = 1, column = 0 , padx = 20 , pady = 10)
         self.quickButton.grid( row = 1, column= 1 , padx = 20 , pady = 10)
 
         # port selection
         ports                   = list( serial.tools.list_ports.comports() ) 
-        self.port_selection     = ttk.Combobox( self.root , values = ports )
+        self.port_selection     = ttk.Combobox( tabSelect , values = ports )
         self.port_selection.grid(row = 0, column= 0 , padx = 20 , pady = 10)
 
         # buttons : estop, park, free writing window
         self.EmargencyStop      = tk.Button( self.quickButton, text = "Emargency Stop", font = ('Arial', 16 ) , bg = 'red', fg = 'white' , command= self.Estop )
         self.Park               = tk.Button( self.quickButton, text = "Park", font = ('Arial', 16) , bg = 'blue', fg = 'white' , command = self.park )
         self.openFreeWriting    = tk.Button( self.quickButton, text = "Open Serial Communication" ,font = ('Arial', 16 ), command= self.freewriting )
-        self.motorSettingButton = tk.Button( self.quickButton , text = "Motor Setting", font = ('Arial', 16 ), command = self.motor.MotorSetting )
+        # self.motorSettingButton = tk.Button( self.quickButton , text = "Motor Setting", font = ('Arial', 16 ), command = self.motor.MotorSetting )
         
         self.EmargencyStop.pack()
         self.Park.pack( pady = 10 )
         self.openFreeWriting.pack( pady = 10 )
-        self.motorSettingButton.pack( pady = 10)
+        # self.motorSettingButton.pack( pady = 10)
 
         # azi,ele input boxes creation
         self.boxFrame           = tk.Frame( self.positions )
@@ -264,7 +283,6 @@ class Newwindow():
         self.printbutton        = tk.Button( self.positions, text = "Enter", command = self.input )
         self.printbutton.pack( padx = 20, pady = 10, side = 'right' )
 
-        self.root.mainloop()
 
     def freewriting(self):
         self.motor.freeInput()
