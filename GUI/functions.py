@@ -310,21 +310,28 @@ class FrontEnd():
         vi.openRsrcManager()
         instruments = vi.rm.list_resources()
 
+        def updateInstruments():
+            """Update the list of VISA resources stored in 'instruments'
+            """
+            global instruments
+            instruments = vi.rm.list_resources()
+
+        def scpiConnectButtonPress():
+            """Check if the current instrument ID is equivalent to the string in the combobox instrSelectBox. If yes, set instrument ID and call vi.connectToRsrc
+            """
+            if vi.instr != self.instrSelectBox.get():
+                vi.instr = self.instrSelectBox.get()
+                vi.connectToRsrc()
+
         # Instrument selection panel
         ttk.Label(tabSelect, text = "Select a SCPI instrument:", 
           font = ("Times New Roman", 10)).grid(column = 0, 
           row = 0, padx = 10, pady = 25) 
-        def updateInstruments():
-            instruments = vi.rm.list_resources()
-        self.instrSelection = ttk.Combobox(tabSelect, values = instruments, width=60, postcommand = lambda:updateInstruments())
-        self.instrSelection.grid(row = 0, column = 1, padx = 20 , pady = 10)
-        self.selectButton = tk.Button(tabSelect, text = "Confirm", command = lambda:print(self.instSelection.get()))
-        self.selectButton.grid(row = 0, column = 3)
+        self.instrSelectBox = ttk.Combobox(tabSelect, values = instruments, width=60, postcommand = lambda:updateInstruments())
+        self.instrSelectBox.grid(row = 0, column = 1, padx = 20 , pady = 10)
+        self.confirmButton = tk.Button(tabSelect, text = "Connect", command = lambda:scpiConnectButtonPress())
+        self.confirmButton.grid(row = 0, column = 3)
 
-        # Check if the current instrument ID is equivalent to the string in the combobox instrSelection
-        if vi.instr != self.instrSelection.get():     
-            vi.instr = self.instrSelection.get()
-            vi.connectToRsrc()
 
     def serialInterface(self):
         """Generates the serial communication interface on the developer's tab of choice at tabSelect
