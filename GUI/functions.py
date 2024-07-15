@@ -5,6 +5,11 @@ import tkinter as tk
 from tkinter import ttk
 import serial
 import serial.tools.list_ports
+import pyvisa as visa
+
+# CONSTANTS
+RETURN_ERROR = 1
+RETURN_SUCCESS = 0
 
 class MotorControl: 
 
@@ -210,6 +215,53 @@ class MotorControl:
     #         messagebox.showwarning( title = "Default update error", message= "Failed to update default value" )
         
 ########################################################################################################################################
+class VisaControl():
+    def __init__(self):
+        self.instr = ''
+
+    def openRsrcManager(self):
+        """Opens the VISA resource manager on the default backend (NI-VISA). If the VISA library cannot be found, a path must be passed to pyvisa.highlevel.ResourceManager() constructor
+
+        Returns:
+            0: On success
+            1: On error
+        """
+        print('Initializing VISA Resource Manager...')
+        self.rm = visa.ResourceManager()
+        if self.isError():
+            print('Could not open a session to the resource manager, error code:', hex(self.rm.last_status))
+            return RETURN_ERROR     
+        return RETURN_SUCCESS
+    
+    def connectToRsrc(self):
+        """Opens a session to the resource ID located in self.instr
+
+        Returns:
+            0: On success
+            1: On error
+        """
+        if self.instr != '':
+            print('Connecting to resource: ' + self.instr)
+            viConnected = self.rm.open_resource(self.instr)
+            if self.isError():
+                print('Could not open a session to ' + self.instr)
+                print('Error Code:' + self.rm.last_status)
+                return RETURN_ERROR
+            return RETURN_SUCCESS
+        
+    def isError(self):
+        """Checks the last status code returned from an operation at the opened resource manager (self.rm)
+
+        Returns:
+            0: On success or warning (Operation succeeded)
+            1: On error
+        """
+        if self.rm.last_status < 0:
+            return RETURN_ERROR
+        else:
+            print('Success code:', hex(self.rm.last_status))
+            return RETURN_SUCCESS
+
 class FrontEnd():
     def __init__(self):
         """Initializes the top level tkinter interface
@@ -227,7 +279,34 @@ class FrontEnd():
         tabControl.pack(expand = 1, fill ="both") 
 
         self.serialInterface()
+        self.scpiInterface()
         self.root.mainloop()
+
+    def scpiInterface(self):
+        """Generates the SCPI communication interface on the developer's tab of choice at tabSelect
+        """
+
+        tabSelect = self.tab2           # Select which tab this interface should be placed
+        vi = VisaControl()
+        vi.openRsrcManager()
+        instruments = vi.rm.list_resources()
+
+        # Instrument selection panel
+        ttk.Label(tabSelect, text = "Select a SCPI instrument:", 
+          font = ("Times New Roman", 10)).grid(column = 0, 
+          row = 0, padx = 10, pady = 25) 
+        def updateInstruments():
+            instruments = vi.rm.list_resources()
+        self.instrSelection = ttk.Combobox(tabSelect, values = instruments, width=60, postcommand = lambda:updateInstruments())
+        self.instrSelection.grid(row = 0, column = 1, padx = 20 , pady = 10)
+        self.selectButton = tk.Button(tabSelect, text = "Confirm", command = lambda:print(self.instSelection.get()))
+        self.selectButton.grid(row = 0, column = 3)
+
+        # Check if the current instrument ID is equivalent to the string in the combobox instrSelection
+        
+        if vi.instr != self.instrSelection.get():     
+            vi.instr = self.instrSelection.get()
+            vi.connectToRsrc()
 
     def serialInterface(self):
         """Generates the serial communication interface on the developer's tab of choice at tabSelect
