@@ -5,6 +5,7 @@ import tkinter as tk
 from tkinter import ttk
 import serial
 import serial.tools.list_ports
+import time
 import pyvisa as visa
 
 # CONSTANTS
@@ -21,7 +22,7 @@ class MotorControl:
         self.Azi_bound  = Azi_bound
         self.Ele_bound  = Ele_bound
         self.homeAzi    = 0
-        self.homeEle    = 90
+        self.homeEle    = 0
         self.port       = ''
         self.ser        = serial.Serial()
         self.portConnection()
@@ -48,13 +49,28 @@ class MotorControl:
 
     def sendCommand( self ):
         try: 
-            self.ser.write( self.commandToSend.encode('utf-8'))
+            newline = '\r\n'
+            self.commandToSend += newline
+            # self.ser.write('print "asdf"\r\n'.encode('utf-8'))
+            time.sleep(1)
+            # self.readLine()
+            time.sleep(1)
+            # print(self.commandToSend)
+            # self.ser.write( self.commandToSend+'\r\n'.encode('utf-8'))
+           
+            self.ser.write( self.commandToSend.encode('utf-8')+'\r\n'.encode('utf-8'))
+           
+            time.sleep(1)
+            self.readLine()
             if self.nextCommand != "":
                 self.ser.write( self.nextCommand.encode('utf-8'))
+            time.sleep(1)
+            # self.readLine()
+
             self.commandToSend = ""
             self.nextCommand = ""
             print("command sent")
-            self.readLine()
+            
 
         except:
             self.errorType = self.connectionError[0]
@@ -64,11 +80,10 @@ class MotorControl:
 
     def readLine( self ):
         msg = self.ser.readline()
-        message = msg.decode('utf-8') 
-        if message != "": 
-            print(message)
-            print("-------------------")
-        return message
+        # message = msg.decode('utf-8') 
+        print(msg)
+        
+ 
 
     def readUserInput( self ):
         if self.userAzi == "":
@@ -106,15 +121,17 @@ class MotorControl:
     def portConnection( self ):
         if self.port != '':
            
-            if self.ser.isOpen():
+            if self.ser.is_open:
                 self.ser.close()
             try:    
-                self.ser = serial.Serial(port= str( self.port ), baudrate=9600 )
-                print( "typing in setting commands" )
-                # # self.ser.write("\r\n")
+                self.ser = serial.Serial(port= 'COM4', baudrate=9600 , bytesize= 8, parity='N', stopbits=1,xonxoff=0)
+                # print( "typing in setting commands" )
+                time.sleep(1)
+                # self.ser.write("\n")
                 # self.ser.write( self.startCommand[0] )
                 # # if self.readLine() = 
                 # self.ser.write( self.startCommand[1] )
+                # self.ser.write( "\n" ) 
                 print( "communication to motor controller is ready")
             except:
                  self.errorType = self.connectionError[0]
@@ -132,9 +149,11 @@ class MotorControl:
 
     def freeInput( self ):
         def ReadandSend():
+
             self.commandToSend = inBox.get()
+            # print(inBox.get())
             self.sendCommand()
-            update()
+            # update()
         
         def update(): 
             # current = returnLineBox["Text"]
@@ -166,7 +185,7 @@ class MotorControl:
         freeWriting.mainloop()
         
         
-        
+#######################################################################################################################################
     # def MotorSetting( self ):
     #     settingWindow = tk.Tk()
     #     settingWindow.geometry('400x200')
@@ -303,7 +322,6 @@ class FrontEnd():
         self.selectButton.grid(row = 0, column = 3)
 
         # Check if the current instrument ID is equivalent to the string in the combobox instrSelection
-        
         if vi.instr != self.instrSelection.get():     
             vi.instr = self.instrSelection.get()
             vi.connectToRsrc()
