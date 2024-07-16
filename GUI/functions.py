@@ -11,6 +11,12 @@ import pyvisa as visa
 # CONSTANTS
 RETURN_ERROR = 1
 RETURN_SUCCESS = 0
+READ_BYTES_DEF = 4096     # Default byte count to read when issuing viRead
+READ_BYTES_MIN = 1024
+READ_BYTES_MAX = 1048576  # Max read bytes allowed
+TIMEOUT_DEF = 2500        # Default VISA timeout value
+TIMEOUT_MIN = 1000        # Minimum VISA timeout value
+TIMEOUT_MAX = 25000       # Maximum VISA timeout value
 
 class MotorControl: 
 
@@ -261,7 +267,7 @@ class VisaControl():
         """
         if self.instr != '':
             print('Connecting to resource: ' + self.instr)
-            viConnected = self.rm.open_resource(self.instr)
+            self.openRsrc = self.rm.open_resource(self.instr)
             if self.isError():
                 print('Could not open a session to ' + self.instr)
                 print('Error Code:' + self.rm.last_status)
@@ -280,6 +286,7 @@ class VisaControl():
         else:
             print('Success code:', hex(self.rm.last_status))
             return RETURN_SUCCESS
+        
 
 class FrontEnd():
     def __init__(self):
@@ -306,6 +313,8 @@ class FrontEnd():
         """
 
         tabSelect = self.tab2           # Select which tab this interface should be placed
+        timeout = TIMEOUT_DEF           # VISA timeout value
+        readBytes = READ_BYTES_DEF      # Bytes to read from buffer
         vi = VisaControl()
         vi.openRsrcManager()
         instruments = vi.rm.list_resources()
@@ -313,7 +322,7 @@ class FrontEnd():
         def updateInstruments():
             """Update the list of VISA resources stored in 'instruments'
             """
-            global instruments
+            global instruments  # List returned from vi.rm.list_resources()
             instruments = vi.rm.list_resources()
 
         def scpiConnectButtonPress():
@@ -332,6 +341,19 @@ class FrontEnd():
         self.confirmButton = tk.Button(tabSelect, text = "Connect", command = lambda:scpiConnectButtonPress())
         self.confirmButton.grid(row = 0, column = 3)
 
+        self.configFrame = ttk.LabelFrame(tabSelect, borderwidth = 2, text = "Configuration")
+        self.configFrame.grid(row = 1, column = 0, padx=20, pady=10)
+        # self.Button = tk.Button(self.configFrame, text = "Press Me", command = lambda:print(vi.openRsrc.query(':TRAC? TRACE1')))
+        # self.Button.grid(row = 4, column = 0)
+        self.timeoutLabel = ttk.Label(self.configFrame, text = 'Timeout (ms)')
+        self.timeoutWidget = ttk.Spinbox(self.configFrame, from_=TIMEOUT_MIN, to=TIMEOUT_MAX, textvariable=timeout)
+        self.readBytesLabel = ttk.Label(self.configFrame, text = 'Bytes to read')
+        self.readBytesWidget = ttk.Spinbox(self.configFrame, from_=READ_BYTES_MIN, to=READ_BYTES_MAX, textvariable=readBytes)
+        # ISSUE: These labels don't do anything yet
+        self.timeoutLabel.grid(row = 0, column = 0)
+        self.timeoutWidget.grid(row = 1, column = 0, padx=20, columnspan=2)
+        self.readBytesLabel.grid(row = 2, column = 0)
+        self.readBytesWidget.grid(row = 3, column = 0, padx=20, columnspan=2)
 
     def serialInterface(self):
         """Generates the serial communication interface on the developer's tab of choice at tabSelect
