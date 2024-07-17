@@ -118,14 +118,13 @@ class MotorControl:
                 self.ser.close()
             try:    
                 self.ser = serial.Serial(port= 'COM4', baudrate=9600 , bytesize= 8, parity='N', stopbits=1,xonxoff=0)
-                # print( "typing in setting commands" )
                 time.sleep(1)
                 # self.ser.write("\n")
                 # self.ser.write( self.startCommand[0] )
                 # # if self.readLine() = 
                 # self.ser.write( self.startCommand[1] )
                 # self.ser.write( "\n" ) 
-                print( "communication to motor controller is ready")
+                print( "communication to motor controller is ready" )
             except:
                  self.errorType = self.connectionError[0]
                  self.errorMsg = self.connectionError[1]
@@ -343,7 +342,7 @@ class FrontEnd():
         # buttons : estop, park, free writing window
         self.EmargencyStop      = tk.Button( self.quickButton, text = "Emargency Stop", font = ('Arial', 16 ) , bg = 'red', fg = 'white' , command= self.Estop )
         self.Park               = tk.Button( self.quickButton, text = "Park", font = ('Arial', 16) , bg = 'blue', fg = 'white' , command = self.park )
-        self.openFreeWriting    = tk.Button( self.quickButton, text = "Open Serial Communication" ,font = ('Arial', 16 ), command= self.freewriting )
+        self.openFreeWriting    = tk.Button( self.quickButton, text = "Open Free Writing" ,font = ('Arial', 16 ), command= self.freewriting )
         # self.motorSettingButton = tk.Button( self.quickButton , text = "Motor Setting", font = ('Arial', 16 ), command = self.motor.MotorSetting )
         
         self.EmargencyStop.pack()
@@ -383,6 +382,11 @@ class FrontEnd():
 
 
     def freewriting(self):
+        if self.motor.port != self.port_selection.get()[:4]: 
+            portName = self.port_selection.get()
+            self.motor.port = portName[:4]
+            self.motor.portConnection()
+            
         self.motor.freeInput()
 
     def Estop(self):
