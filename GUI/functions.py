@@ -7,6 +7,7 @@ import serial
 import serial.tools.list_ports
 import time
 import pyvisa as visa
+import os
 
 # CONSTANTS
 RETURN_ERROR = 1
@@ -14,7 +15,7 @@ RETURN_SUCCESS = 0
 
 class MotorControl: 
 
-    def __init__(self, Azimuth, Elevation, userAzi = 0, userEle = 0, Azi_bound = [0,360], Ele_bound = [0,120] ): 
+    def __init__(self, Azimuth, Elevation, userAzi = 0, userEle = 0, Azi_bound = [0,360], Ele_bound = [-90,20] ): 
         self.Azimuth    = Azimuth
         self.Elevation  = Elevation
         self.userAzi    = userAzi
@@ -29,7 +30,6 @@ class MotorControl:
 
         # commands 
         self.commandToSend  = ""
-        self.nextCommand    = ""
         self.breakCommand   = 'jog off x y' 
         self.commandGen     = 'jog abs'
         self.moveCommandX   = 'jog abs x ' 
@@ -49,30 +49,17 @@ class MotorControl:
 
     def sendCommand( self ):
         try: 
-            newline = '\r\n'
-            self.commandToSend += newline
-            # self.ser.write('print "asdf"\r\n'.encode('utf-8'))
             time.sleep(1)
-            # self.readLine()
-            time.sleep(1)
-            # print(self.commandToSend)
-            # self.ser.write( self.commandToSend+'\r\n'.encode('utf-8'))
-           
-            self.ser.write( self.commandToSend.encode('utf-8')+'\r\n'.encode('utf-8'))
-           
+            self.ser.write( self.commandToSend.encode('utf-8'))
             time.sleep(1)
             self.readLine()
-            if self.nextCommand != "":
-                self.ser.write( self.nextCommand.encode('utf-8'))
             time.sleep(1)
-            # self.readLine()
 
-            self.commandToSend = ""
-            self.nextCommand = ""
-            print("command sent")
+            print("command sent \n")
             
 
         except:
+            
             self.errorType = self.connectionError[0]
             self.errorMsg = self.connectionError[1]
             self.errorPopup()
@@ -83,15 +70,21 @@ class MotorControl:
         # message = msg.decode('utf-8') 
         print(msg)
         
- 
+    def is_convertible_to_integer(self, input_str):
+        try:
+            int(input_str)
+            return True
+        except:
+            return False
+        
 
     def readUserInput( self ):
         if self.userAzi == "":
             self.userAzi = str ( self.Azimuth )
         if self.userEle == "":
             self.userEle = str( self.Elevation )
-        elif ((self.userAzi).isdigit()) and ((self.userEle).isdigit()):
-           self.checkrange()
+        elif (self.is_convertible_to_integer(self.userAzi)) and (self.is_convertible_to_integer(self.userEle)):
+            self.checkrange()
         else : 
             self.errorType = self.inputTypeError[0]
             self.errorMsg = self.inputTypeError[1]
@@ -298,7 +291,7 @@ class FrontEnd():
         tabControl.pack(expand = 1, fill ="both") 
 
         self.serialInterface()
-        self.scpiInterface()
+        # self.scpiInterface()
         self.root.mainloop()
 
     def scpiInterface(self):
@@ -332,20 +325,20 @@ class FrontEnd():
 
         tabSelect = self.tab1   # Select which tab this interface should be placed
 
-         # create motor from class "Motorcontrol"
-        self.motor = MotorControl( 0 , 90 )
+        # create motor from class "Motorcontrol"
+        self.motor = MotorControl( 0 , 0 )
         
-        # box for asi ele information 
-        self.positions      = tk.LabelFrame( tabSelect, text = "Antenna Position" )
-        self.quickButton    = tk.Frame( tabSelect )
-
-        self.positions.grid( row = 1, column = 0 , padx = 20 , pady = 10)
-        self.quickButton.grid( row = 1, column= 1 , padx = 20 , pady = 10)
-
         # port selection
         ports                   = list( serial.tools.list_ports.comports() ) 
         self.port_selection     = ttk.Combobox( tabSelect , values = ports )
         self.port_selection.grid(row = 0, column= 0 , padx = 20 , pady = 10)
+
+        # box for asi ele information 
+        self.positions      = tk.LabelFrame( tabSelect, text = "Antenna Position" )
+        self.quickButton    = tk.Frame( tabSelect )
+        self.positions.grid( row = 1, column = 0 , padx = 20 , pady = 10)
+        self.quickButton.grid( row = 1, column= 1 , padx = 20 , pady = 10)
+
 
         # buttons : estop, park, free writing window
         self.EmargencyStop      = tk.Button( self.quickButton, text = "Emargency Stop", font = ('Arial', 16 ) , bg = 'red', fg = 'white' , command= self.Estop )
@@ -379,6 +372,14 @@ class FrontEnd():
         # enter button creation
         self.printbutton        = tk.Button( self.positions, text = "Enter", command = self.input )
         self.printbutton.pack( padx = 20, pady = 10, side = 'right' )
+
+        # # Python termial 
+        # termial = tk.Frame( tabSelect )
+        # termial.grid( row = 2, column = 0, padx = 10, pady = 10)
+        # wid = termial.winfo_id( )
+        # os.system('xterm -into %d -geometry 40x20 -sb &' % wid)
+
+        
 
 
     def freewriting(self):
