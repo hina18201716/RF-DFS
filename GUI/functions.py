@@ -313,8 +313,8 @@ class FrontEnd():
         """
 
         tabSelect = self.tab2           # Select which tab this interface should be placed
-        timeout = TIMEOUT_DEF           # VISA timeout value
-        readBytes = READ_BYTES_DEF      # Bytes to read from buffer
+        self.timeout = TIMEOUT_DEF           # VISA timeout value
+        self.readBytes = READ_BYTES_DEF      # Bytes to read from buffer
         vi = VisaControl()
         vi.openRsrcManager()
         instruments = vi.rm.list_resources()
@@ -333,6 +333,8 @@ class FrontEnd():
                 vi.connectToRsrc()
 
         # Instrument selection panel
+        # ISSUE: Instrument list does not update
+        # ISSUE: Apply changes should only be pressable when changes are detected
         ttk.Label(tabSelect, text = "Select a SCPI instrument:", 
           font = ("Times New Roman", 10)).grid(column = 0, 
           row = 0, padx = 10, pady = 25) 
@@ -343,18 +345,43 @@ class FrontEnd():
 
         self.configFrame = ttk.LabelFrame(tabSelect, borderwidth = 2, text = "Configuration")
         self.configFrame.grid(row = 1, column = 0, padx=20, pady=10)
-        # self.Button = tk.Button(self.configFrame, text = "Press Me", command = lambda:print(vi.openRsrc.query(':TRAC? TRACE1')))
-        # self.Button.grid(row = 4, column = 0)
         self.timeoutLabel = ttk.Label(self.configFrame, text = 'Timeout (ms)')
-        self.timeoutWidget = ttk.Spinbox(self.configFrame, from_=TIMEOUT_MIN, to=TIMEOUT_MAX, textvariable=timeout)
+        self.timeoutWidget = ttk.Spinbox(self.configFrame, from_=TIMEOUT_MIN, to=TIMEOUT_MAX, textvariable=self.timeout)
+        self.timeoutWidget.set(self.timeout)
         self.readBytesLabel = ttk.Label(self.configFrame, text = 'Bytes to read')
-        self.readBytesWidget = ttk.Spinbox(self.configFrame, from_=READ_BYTES_MIN, to=READ_BYTES_MAX, textvariable=readBytes)
-        # ISSUE: These labels don't do anything yet
+        self.readBytesWidget = ttk.Spinbox(self.configFrame, from_=READ_BYTES_MIN, to=READ_BYTES_MAX, textvariable=self.readBytes)
+        self.readBytesWidget.set(self.readBytes)
+        self.applyButton = tk.Button(self.configFrame, text = "Apply Changes", command = lambda:self.scpiApplyConfig())
+        
         self.timeoutLabel.grid(row = 0, column = 0)
         self.timeoutWidget.grid(row = 1, column = 0, padx=20, columnspan=2)
         self.readBytesLabel.grid(row = 2, column = 0)
         self.readBytesWidget.grid(row = 3, column = 0, padx=20, columnspan=2)
+        self.applyButton.grid(row = 4, column = 2)
+    
+    def scpiApplyConfig(self):
+        """Applies changes made in the SCPI configuration frame to variables timeout and readBytes, Then issues VISA commands set config
 
+        Raises:
+            TypeError: ttk::spinbox get() does not return type int or integer out of range for respective variable
+
+        Returns:
+            0: On success
+        """
+        try:
+            self.timeout = int(self.timeoutWidget.get())
+            self.readBytes = int(self.readBytesWidget.get())
+        except:
+            raise TypeError('ttk::spinbox get() did not return type int')
+        
+        if self.timeout < TIMEOUT_MIN or self.timeout > TIMEOUT_MAX:
+            raise TypeError(f'int timeout out of range. Min: {TIMEOUT_MIN}, Max: {TIMEOUT_MAX}')
+        if self.readBytes < READ_BYTES_MIN or self.readBytes > READ_BYTES_MAX:
+            raise TypeError(f'int readBytes out of range. Min: {READ_BYTES_MIN}, Max: {READ_BYTES_MAX}')
+        
+        print(f'Operation successful. Timeout: {self.timeout}, Read Bytes: {self.readBytes}')
+        return RETURN_SUCCESS
+    
     def serialInterface(self):
         """Generates the serial communication interface on the developer's tab of choice at tabSelect
         """
