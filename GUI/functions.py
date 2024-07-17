@@ -241,9 +241,6 @@ class MotorControl:
         
 ########################################################################################################################################
 class VisaControl():
-    def __init__(self):
-        self.instr = ''
-
     def openRsrcManager(self):
         """Opens the VISA resource manager on the default backend (NI-VISA). If the VISA library cannot be found, a path must be passed to pyvisa.highlevel.ResourceManager() constructor
 
@@ -258,21 +255,33 @@ class VisaControl():
             return RETURN_ERROR     
         return RETURN_SUCCESS
     
-    def connectToRsrc(self):
-        """Opens a session to the resource ID located in self.instr
+    def connectToRsrc(self, inputString):
+        """Opens a session to the resource ID passed from inputString if it is not already connected
+
+        Args:
+            inputString (string): Name of the resource ID to attempt to connect to. 
 
         Returns:
             0: On success
             1: On error
         """
-        if self.instr != '':
-            print('Connecting to resource: ' + self.instr)
-            self.openRsrc = self.rm.open_resource(self.instr)
-            if self.isError():
-                print('Could not open a session to ' + self.instr)
-                print('Error Code:' + self.rm.last_status)
-                return RETURN_ERROR
-            return RETURN_SUCCESS
+        try:
+            self.openRsrc.session                           # Is a session open? (Will throw error if not open)
+        except:
+            pass                                            # If not open --> continue
+        else:
+            if self.openRsrc.resource_name == inputString:  # Is the open resource's ID the same as inputString?
+                print('Device is already connected')
+                return RETURN_SUCCESS                       # If yes --> return
+        
+        # If a session is not open or the open resource does not match inputString, attempt connection to inputString
+        print('Connecting to resource: ' + inputString)
+        self.openRsrc = self.rm.open_resource(inputString)
+        if self.isError():
+            print('Could not open a session to ' + inputString)
+            print('Error Code:' + self.rm.last_status)
+            return RETURN_ERROR
+        return RETURN_SUCCESS
         
     def isError(self):
         """Checks the last status code returned from an operation at the opened resource manager (self.rm)
@@ -286,6 +295,7 @@ class VisaControl():
         else:
             print('Success code:', hex(self.rm.last_status))
             return RETURN_SUCCESS
+        
         
 
 class FrontEnd():
@@ -325,13 +335,6 @@ class FrontEnd():
             global instruments  # List returned from vi.rm.list_resources()
             instruments = vi.rm.list_resources()
 
-        def scpiConnectButtonPress():
-            """Check if the current instrument ID is equivalent to the string in the combobox instrSelectBox. If yes, set instrument ID and call vi.connectToRsrc
-            """
-            if vi.instr != self.instrSelectBox.get():
-                vi.instr = self.instrSelectBox.get()
-                vi.connectToRsrc()
-
         # Instrument selection panel
         # ISSUE: Instrument list does not update
         # ISSUE: Apply changes should only be pressable when changes are detected
@@ -340,26 +343,26 @@ class FrontEnd():
           row = 0, padx = 10, pady = 25) 
         self.instrSelectBox = ttk.Combobox(tabSelect, values = instruments, width=60, postcommand = lambda:updateInstruments())
         self.instrSelectBox.grid(row = 0, column = 1, padx = 20 , pady = 10)
-        self.confirmButton = tk.Button(tabSelect, text = "Connect", command = lambda:scpiConnectButtonPress())
+        self.confirmButton = tk.Button(tabSelect, text = "Connect", command = lambda:vi.connectToRsrc(self.instrSelectBox.get()))
         self.confirmButton.grid(row = 0, column = 3)
 
-        self.configFrame = ttk.LabelFrame(tabSelect, borderwidth = 2, text = "Configuration")
+        self.configFrame = ttk.LabelFrame(tabSelect, borderwidth = 2, text = "VISA Configuration")
         self.configFrame.grid(row = 1, column = 0, padx=20, pady=10)
         self.timeoutLabel = ttk.Label(self.configFrame, text = 'Timeout (ms)')
-        self.timeoutWidget = ttk.Spinbox(self.configFrame, from_=TIMEOUT_MIN, to=TIMEOUT_MAX, textvariable=self.timeout)
+        self.timeoutWidget = ttk.Spinbox(self.configFrame, from_=TIMEOUT_MIN, to=TIMEOUT_MAX, increment=100)
         self.timeoutWidget.set(self.timeout)
         self.readBytesLabel = ttk.Label(self.configFrame, text = 'Bytes to read')
-        self.readBytesWidget = ttk.Spinbox(self.configFrame, from_=READ_BYTES_MIN, to=READ_BYTES_MAX, textvariable=self.readBytes)
+        self.readBytesWidget = ttk.Spinbox(self.configFrame, from_=READ_BYTES_MIN, to=READ_BYTES_MAX, increment=1024)
         self.readBytesWidget.set(self.readBytes)
-        self.applyButton = tk.Button(self.configFrame, text = "Apply Changes", command = lambda:self.scpiApplyConfig())
+        self.applyButton = tk.Button(self.configFrame, text = "Apply Changes", command = lambda:self.scpiApplyConfig(vi))
         
-        self.timeoutLabel.grid(row = 0, column = 0)
-        self.timeoutWidget.grid(row = 1, column = 0, padx=20, columnspan=2)
-        self.readBytesLabel.grid(row = 2, column = 0)
-        self.readBytesWidget.grid(row = 3, column = 0, padx=20, columnspan=2)
-        self.applyButton.grid(row = 4, column = 2)
+        self.timeoutLabel.grid(row = 0, column = 0, pady=5)
+        self.timeoutWidget.grid(row = 1, column = 0, padx=20, pady=5, columnspan=2)
+        self.readBytesLabel.grid(row = 2, column = 0, pady=5)
+        self.readBytesWidget.grid(row = 3, column = 0, padx=20, pady=5, columnspan=2)
+        self.applyButton.grid(row = 4, column = 0, columnspan=2, pady=10)
     
-    def scpiApplyConfig(self):
+    def scpiApplyConfig(self, vi):
         """Applies changes made in the SCPI configuration frame to variables timeout and readBytes, Then issues VISA commands set config
 
         Raises:
@@ -378,6 +381,8 @@ class FrontEnd():
             raise TypeError(f'int timeout out of range. Min: {TIMEOUT_MIN}, Max: {TIMEOUT_MAX}')
         if self.readBytes < READ_BYTES_MIN or self.readBytes > READ_BYTES_MAX:
             raise TypeError(f'int readBytes out of range. Min: {READ_BYTES_MIN}, Max: {READ_BYTES_MAX}')
+        
+        vi.openRsrc.session
         
         print(f'Operation successful. Timeout: {self.timeout}, Read Bytes: {self.readBytes}')
         return RETURN_SUCCESS
