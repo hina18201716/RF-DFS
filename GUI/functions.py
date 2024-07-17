@@ -1,5 +1,6 @@
 # import tkinter as tk
 # from tkinter import ttk
+from tkinter import *
 from tkinter import messagebox
 import tkinter as tk
 from tkinter import ttk
@@ -312,6 +313,7 @@ class FrontEnd():
 
         tabControl.add(self.tab1, text ='Tab 1') 
         tabControl.add(self.tab2, text ='Tab 2') 
+        tabControl.bind('<Button-1>', self.resetWidgetValues)
         tabControl.pack(expand = 1, fill ="both") 
 
         self.serialInterface()
@@ -361,6 +363,18 @@ class FrontEnd():
         self.readBytesLabel.grid(row = 2, column = 0, pady=5)
         self.readBytesWidget.grid(row = 3, column = 0, padx=20, pady=5, columnspan=2)
         self.applyButton.grid(row = 4, column = 0, columnspan=2, pady=10)
+
+    def resetWidgetValues(self, event):
+        """Event handler to reset widget values to their respective variables
+
+        Args:
+            event (event): Argument passed by tkinter event (Varies for each event)
+        """
+        try:
+            self.timeoutWidget.set(self.timeout)
+            self.readBytesWidget.set(self.readBytes)
+        except:
+            pass
     
     def scpiApplyConfig(self, vi):
         """Applies changes made in the SCPI configuration frame to variables timeout and readBytes, Then issues VISA commands set config
@@ -381,8 +395,6 @@ class FrontEnd():
             raise TypeError(f'int timeout out of range. Min: {TIMEOUT_MIN}, Max: {TIMEOUT_MAX}')
         if self.readBytes < READ_BYTES_MIN or self.readBytes > READ_BYTES_MAX:
             raise TypeError(f'int readBytes out of range. Min: {READ_BYTES_MIN}, Max: {READ_BYTES_MAX}')
-        
-        vi.openRsrc.session
         
         print(f'Operation successful. Timeout: {self.timeout}, Read Bytes: {self.readBytes}')
         return RETURN_SUCCESS
