@@ -8,13 +8,14 @@ import serial
 import serial.tools.list_ports
 import time
 import pyvisa as visa
+from pyvisa import constants
 
 # CONSTANTS
 RETURN_ERROR = 1
 RETURN_SUCCESS = 0
-READ_BYTES_DEF = 4096     # Default byte count to read when issuing viRead
-READ_BYTES_MIN = 1024
-READ_BYTES_MAX = 1048576  # Max read bytes allowed
+CHUNK_SIZE_DEF = 20480     # Default byte count to read when issuing viRead
+CHUNK_SIZE_MIN = 1024
+CHUNK_SIZE_MAX = 1048576  # Max chunk size allowed
 TIMEOUT_DEF = 2500        # Default VISA timeout value
 TIMEOUT_MIN = 1000        # Minimum VISA timeout value
 TIMEOUT_MAX = 25000       # Maximum VISA timeout value
@@ -283,6 +284,34 @@ class VisaControl():
             print('Error Code:' + self.rm.last_status)
             return RETURN_ERROR
         return RETURN_SUCCESS
+    
+    def setConfig(self, timeout, chunkSize):
+        if self.isSessionOpen():
+            try:
+                self.openRsrc.timeout = timeout
+                self.openRsrc.chunk_size = chunkSize
+                return RETURN_SUCCESS
+            except:
+                print(f'An exception occurred. Error code: {self.rm.last_status}')
+                return RETURN_ERROR
+        else:
+            print("Session to a resource is not open")
+            return RETURN_ERROR
+            
+        
+    def isSessionOpen(self):
+        """Tests if a session is open to the variable openRsrc
+
+        Returns:
+            False: If session is closed
+            True: If session is open
+        """
+        try:
+            self.openRsrc.session                           # Is a session open? (Will throw error if not open)
+        except:
+            return False
+        else:
+            return True
         
     def isError(self):
         """Checks the last status code returned from an operation at the opened resource manager (self.rm)
@@ -291,8 +320,8 @@ class VisaControl():
             0: On success or warning (Operation succeeded)
             1: On error
         """
-        if self.rm.last_status < 0:
-            return RETURN_ERROR
+        if self.rm.last_status < constants.VI_SUCCESS:
+            return self.rm.last_status
         else:
             print('Success code:', hex(self.rm.last_status))
             return RETURN_SUCCESS
@@ -326,7 +355,7 @@ class FrontEnd():
 
         tabSelect = self.tab2           # Select which tab this interface should be placed
         self.timeout = TIMEOUT_DEF           # VISA timeout value
-        self.readBytes = READ_BYTES_DEF      # Bytes to read from buffer
+        self.chunkSize = CHUNK_SIZE_DEF      # Bytes to read from buffer
         vi = VisaControl()
         vi.openRsrcManager()
         instruments = vi.rm.list_resources()
@@ -353,15 +382,15 @@ class FrontEnd():
         self.timeoutLabel = ttk.Label(self.configFrame, text = 'Timeout (ms)')
         self.timeoutWidget = ttk.Spinbox(self.configFrame, from_=TIMEOUT_MIN, to=TIMEOUT_MAX, increment=100)
         self.timeoutWidget.set(self.timeout)
-        self.readBytesLabel = ttk.Label(self.configFrame, text = 'Bytes to read')
-        self.readBytesWidget = ttk.Spinbox(self.configFrame, from_=READ_BYTES_MIN, to=READ_BYTES_MAX, increment=1024)
-        self.readBytesWidget.set(self.readBytes)
-        self.applyButton = tk.Button(self.configFrame, text = "Apply Changes", command = lambda:self.scpiApplyConfig(vi))
+        self.chunkSizeLabel = ttk.Label(self.configFrame, text = 'Chunk size (Bytes)')
+        self.chunkSizeWidget = ttk.Spinbox(self.configFrame, from_=CHUNK_SIZE_MIN, to=CHUNK_SIZE_MAX, increment=10240)
+        self.chunkSizeWidget.set(self.chunkSize)
+        self.applyButton = tk.Button(self.configFrame, text = "Apply Changes", command = lambda:self.scpiApplyConfig(vi, self.timeoutWidget.get(), self.chunkSizeWidget.get()))
         
         self.timeoutLabel.grid(row = 0, column = 0, pady=5)
         self.timeoutWidget.grid(row = 1, column = 0, padx=20, pady=5, columnspan=2)
-        self.readBytesLabel.grid(row = 2, column = 0, pady=5)
-        self.readBytesWidget.grid(row = 3, column = 0, padx=20, pady=5, columnspan=2)
+        self.chunkSizeLabel.grid(row = 2, column = 0, pady=5)
+        self.chunkSizeWidget.grid(row = 3, column = 0, padx=20, pady=5, columnspan=2)
         self.applyButton.grid(row = 4, column = 0, columnspan=2, pady=10)
 
     def resetWidgetValues(self, event):
@@ -372,32 +401,43 @@ class FrontEnd():
         """
         try:
             self.timeoutWidget.set(self.timeout)
-            self.readBytesWidget.set(self.readBytes)
+            self.chunkSizeWidget.set(self.chunkSize)
         except:
             pass
     
-    def scpiApplyConfig(self, vi):
-        """Applies changes made in the SCPI configuration frame to variables timeout and readBytes, Then issues VISA commands set config
+    def scpiApplyConfig(self, vi, timeoutArg, chunkSizeArg):
+        """Applies changes made in the SCPI configuration frame to variables timeout and chunkSize, Then issues VISA commands set config
+
+        Args:
+            vi (VisaControl): Instance of class VisaControl to apply config to. Note some configs will be applied to all VISA attributes, not just the opened resource(s)
+            timeoutArg (string): Argument received from timeout widget which will be tested for type int and within range
+            chunkSizeArg (string): Argument received from chunkSize widget which will be tested for type int and within range
 
         Raises:
             TypeError: ttk::spinbox get() does not return type int or integer out of range for respective variable
 
         Returns:
             0: On success
+            1: On error
         """
         try:
-            self.timeout = int(self.timeoutWidget.get())
-            self.readBytes = int(self.readBytesWidget.get())
+            timeoutArg = int(self.timeoutWidget.get())
+            chunkSizeArg = int(self.chunkSizeWidget.get())
         except:
             raise TypeError('ttk::spinbox get() did not return type int')
         
-        if self.timeout < TIMEOUT_MIN or self.timeout > TIMEOUT_MAX:
+        if timeoutArg < TIMEOUT_MIN or timeoutArg > TIMEOUT_MAX:
             raise TypeError(f'int timeout out of range. Min: {TIMEOUT_MIN}, Max: {TIMEOUT_MAX}')
-        if self.readBytes < READ_BYTES_MIN or self.readBytes > READ_BYTES_MAX:
-            raise TypeError(f'int readBytes out of range. Min: {READ_BYTES_MIN}, Max: {READ_BYTES_MAX}')
+        if chunkSizeArg < CHUNK_SIZE_MIN or chunkSizeArg > CHUNK_SIZE_MAX:
+            raise TypeError(f'int chunkSize out of range. Min: {CHUNK_SIZE_MIN}, Max: {CHUNK_SIZE_MAX}')
         
-        print(f'Operation successful. Timeout: {self.timeout}, Read Bytes: {self.readBytes}')
-        return RETURN_SUCCESS
+        if vi.setConfig(timeoutArg, chunkSizeArg) == RETURN_SUCCESS:
+            print(f'Operation successful. Timeout: {vi.openRsrc.timeout}, Chunk size: {vi.openRsrc.chunk_size}')
+            self.timeout = timeoutArg
+            self.chunkSize = chunkSizeArg
+            return RETURN_SUCCESS
+        else:
+            return RETURN_ERROR
     
     def serialInterface(self):
         """Generates the serial communication interface on the developer's tab of choice at tabSelect
