@@ -7,7 +7,7 @@ import serial
 import serial.tools.list_ports
 import time
 import pyvisa as visa
-import os
+# from tkinter import tix
 
 # CONSTANTS
 RETURN_ERROR = 1
@@ -45,9 +45,13 @@ class MotorControl:
         self.eStopError         = ["Emargency Stop Error", "Failed to stop motor"]
 
     def errorPopup( self ):
+        """Generate Error pop up window.
+        """
         messagebox.showwarning( title= self.errorType , message= self.errorMsg )
 
     def sendCommand( self ):
+        """Serial Communication, write in serial. Error pop up if fails. 
+        """
         try: 
             time.sleep(1)
             self.ser.write( self.commandToSend.encode('utf-8'))
@@ -56,8 +60,6 @@ class MotorControl:
             time.sleep(1)
 
             print("command sent \n")
-            
-
         except:
             
             self.errorType = self.connectionError[0]
@@ -66,11 +68,20 @@ class MotorControl:
 
 
     def readLine( self ):
+        """Serial Commmunication, read until End Of Line charactor
+        """
         msg = self.ser.readline()
         # message = msg.decode('utf-8') 
         print(msg)
         
     def is_convertible_to_integer(self, input_str):
+        """
+        Check if given string is convertivle to integer. (Positive int, Negative int, Zero) 
+
+        Returns:
+            True: String is convetible to integer
+            False: String is not convertible to integer. 
+        """
         try:
             int(input_str)
             return True
@@ -79,6 +90,10 @@ class MotorControl:
         
 
     def readUserInput( self ):
+        """Check if both inputs are integers/NULL string. 
+        Convert NULL string to current position values.
+        If both inputs are integers/NULL string, call chechrange functioon, otherwise, error pop up. 
+        """
         if self.userAzi == "":
             self.userAzi = str ( self.Azimuth )
         if self.userEle == "":
@@ -91,6 +106,8 @@ class MotorControl:
             self.errorPopup()
 
     def checkrange( self ): 
+        """Check if input value(s) are in range. Send command if both in range, error pop up if not. 
+        """
         isInRange = True
         self.IntUserAzi = int(self.userAzi)
         self.IntUserEle = int(self.userEle)
@@ -112,12 +129,14 @@ class MotorControl:
             self.errorPopup()
    
     def portConnection( self ):
+        """Open new serial connection
+        """
         if self.port != '':
            
             if self.ser.is_open:
                 self.ser.close()
             try:    
-                self.ser = serial.Serial(port= 'COM4', baudrate=9600 , bytesize= 8, parity='N', stopbits=1,xonxoff=0)
+                self.ser = serial.Serial(port= self.port, baudrate=9600 , bytesize= 8, parity='N', stopbits=1,xonxoff=0)
                 time.sleep(1)
                 # self.ser.write("\n")
                 # self.ser.write( self.startCommand[0] )
@@ -291,6 +310,7 @@ class FrontEnd():
 
         self.serialInterface()
         # self.scpiInterface()
+        # self.PythonInterface()
         self.root.mainloop()
 
     def scpiInterface(self):
@@ -317,6 +337,10 @@ class FrontEnd():
         if vi.instr != self.instrSelection.get():     
             vi.instr = self.instrSelection.get()
             vi.connectToRsrc()
+    
+    def PythonInterface( self ): 
+        pyWindow = tix.Tk()
+        pyWindow.mainloop()
 
     def serialInterface(self):
         """Generates the serial communication interface on the developer's tab of choice at tabSelect
@@ -372,21 +396,18 @@ class FrontEnd():
         self.printbutton        = tk.Button( self.positions, text = "Enter", command = self.input )
         self.printbutton.pack( padx = 20, pady = 10, side = 'right' )
 
-        # # Python termial 
-        # termial = tk.Frame( tabSelect )
-        # termial.grid( row = 2, column = 0, padx = 10, pady = 10)
-        # wid = termial.winfo_id( )
-        # os.system('xterm -into %d -geometry 40x20 -sb &' % wid)
-
+    
         
 
 
     def freewriting(self):
+        """Frexible serial communication Window
+        """
         if self.motor.port != self.port_selection.get()[:4]: 
             portName = self.port_selection.get()
             self.motor.port = portName[:4]
             self.motor.portConnection()
-            
+
         self.motor.freeInput()
 
     def Estop(self):
