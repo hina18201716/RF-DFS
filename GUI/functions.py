@@ -16,7 +16,7 @@ RETURN_SUCCESS = 0
 CHUNK_SIZE_DEF = 20480     # Default byte count to read when issuing viRead
 CHUNK_SIZE_MIN = 1024
 CHUNK_SIZE_MAX = 1048576  # Max chunk size allowed
-TIMEOUT_DEF = 2500        # Default VISA timeout value
+TIMEOUT_DEF = 2000        # Default VISA timeout value
 TIMEOUT_MIN = 1000        # Minimum VISA timeout value
 TIMEOUT_MAX = 25000       # Maximum VISA timeout value
 
@@ -353,29 +353,35 @@ class FrontEnd():
         """Generates the SCPI communication interface on the developer's tab of choice at tabSelect
         """
 
-        tabSelect = self.tab2           # Select which tab this interface should be placed
+        tabSelect = self.tab2                # Select which tab this interface should be placed
         self.timeout = TIMEOUT_DEF           # VISA timeout value
         self.chunkSize = CHUNK_SIZE_DEF      # Bytes to read from buffer
+        self.instrument = ''                 # ID of the currently open instrument. Used only in resetWidgetValues method
         vi = VisaControl()
         vi.openRsrcManager()
-        instruments = vi.rm.list_resources()
 
-        def updateInstruments():
-            """Update the list of VISA resources stored in 'instruments'
+        def onConnectPress():
+            """Connect to the resource and update the string in self.instrument
             """
-            global instruments  # List returned from vi.rm.list_resources()
-            instruments = vi.rm.list_resources()
+            if vi.connectToRsrc(self.instrSelectBox.get()) == RETURN_SUCCESS:
+                self.instrument = self.instrSelectBox.get()
+        def onRefreshPress():
+            """Update the values in the SCPI instrument selection box
+            """
+            print('Searching for resources...')
+            self.instrSelectBox['values'] = vi.rm.list_resources()
 
         # Instrument selection panel
-        # ISSUE: Instrument list does not update
         # ISSUE: Apply changes should only be pressable when changes are detected
         ttk.Label(tabSelect, text = "Select a SCPI instrument:", 
           font = ("Times New Roman", 10)).grid(column = 0, 
-          row = 0, padx = 10, pady = 25) 
-        self.instrSelectBox = ttk.Combobox(tabSelect, values = instruments, width=60, postcommand = lambda:updateInstruments())
-        self.instrSelectBox.grid(row = 0, column = 1, padx = 20 , pady = 10)
-        self.confirmButton = tk.Button(tabSelect, text = "Connect", command = lambda:vi.connectToRsrc(self.instrSelectBox.get()))
-        self.confirmButton.grid(row = 0, column = 3)
+          row = 0, padx = 5, pady = 25) 
+        self.instrSelectBox = ttk.Combobox(tabSelect, values = vi.rm.list_resources(), width=40)
+        self.instrSelectBox.grid(row = 0, column = 1, padx = 10 , pady = 10)
+        self.refreshButton = tk.Button(tabSelect, text = "Refresh", command = lambda:onRefreshPress())
+        self.refreshButton.grid(row = 0, column = 2, padx=5)
+        self.confirmButton = tk.Button(tabSelect, text = "Connect", command = lambda:onConnectPress())
+        self.confirmButton.grid(row = 0, column = 3, padx=5)
 
         self.configFrame = ttk.LabelFrame(tabSelect, borderwidth = 2, text = "VISA Configuration")
         self.configFrame.grid(row = 1, column = 0, padx=20, pady=10)
@@ -402,6 +408,7 @@ class FrontEnd():
         try:
             self.timeoutWidget.set(self.timeout)
             self.chunkSizeWidget.set(self.chunkSize)
+            self.instrSelectBox.set(self.instrument)
         except:
             pass
     
