@@ -9,6 +9,8 @@ import serial.tools.list_ports
 import time
 import pyvisa as visa
 from pyvisa import constants
+# from tkinter import tix
+import astropy
 
 # CONSTANTS
 RETURN_ERROR = 1
@@ -21,8 +23,8 @@ TIMEOUT_MIN = 1000        # Minimum VISA timeout value
 TIMEOUT_MAX = 25000       # Maximum VISA timeout value
 
 class MotorControl: 
-
-    def __init__(self, Azimuth, Elevation, userAzi = 0, userEle = 0, Azi_bound = [0,360], Ele_bound = [0,120] ): 
+ 
+    def __init__(self, Azimuth, Elevation, userAzi = 0, userEle = 0, Azi_bound = [0,360], Ele_bound = [-90,20] ): 
         self.Azimuth    = Azimuth
         self.Elevation  = Elevation
         self.userAzi    = userAzi
@@ -33,11 +35,10 @@ class MotorControl:
         self.homeEle    = 0
         self.port       = ''
         self.ser        = serial.Serial()
-        self.portConnection()
+        self.OpenSerial()
 
         # commands 
         self.commandToSend  = ""
-        self.nextCommand    = ""
         self.breakCommand   = 'jog off x y' 
         self.commandGen     = 'jog abs'
         self.moveCommandX   = 'jog abs x ' 
@@ -53,59 +54,70 @@ class MotorControl:
         self.eStopError         = ["Emargency Stop Error", "Failed to stop motor"]
 
     def errorPopup( self ):
+        """Generate Error pop up window.
+        """
         messagebox.showwarning( title= self.errorType , message= self.errorMsg )
 
-    def sendCommand( self ):
+    def sendCommand( self , command ):
+        """Serial Communication, write in serial. Error pop up if fails. 
+        """
         try: 
-            newline = '\r\n'
-            self.commandToSend += newline
-            # self.ser.write('print "asdf"\r\n'.encode('utf-8'))
-            time.sleep(1)
-            # self.readLine()
-            time.sleep(1)
-            # print(self.commandToSend)
-            # self.ser.write( self.commandToSend+'\r\n'.encode('utf-8'))
-           
-            self.ser.write( self.commandToSend.encode('utf-8')+'\r\n'.encode('utf-8'))
-           
-            time.sleep(1)
-            self.readLine()
-            if self.nextCommand != "":
-                self.ser.write( self.nextCommand.encode('utf-8'))
-            time.sleep(1)
-            # self.readLine()
-
-            self.commandToSend = ""
-            self.nextCommand = ""
-            print("command sent")
             
+            # time.sleep(1)
+            self.ser.write( str(command).encode('utf-8'))
+            # time.sleep(1)
+            self.readLine()
+            # time.sleep(1)
 
+            print("command sent \n")
         except:
+            
             self.errorType = self.connectionError[0]
             self.errorMsg = self.connectionError[1]
             self.errorPopup()
 
 
     def readLine( self ):
+        """Serial Commmunication, read until End Of Line charactor
+        """
         msg = self.ser.readline()
         # message = msg.decode('utf-8') 
         print(msg)
         
- 
+    def is_convertible_to_integer(self, input_str):
+        """
+        Check if given string is convertivle to integer. (Positive int, Negative int, Zero) 
+
+        Returns:
+            True: String is convetible to integer
+            False: String is not convertible to integer. 
+        """
+        try:
+            int(input_str)
+            return True
+        except:
+            return False
+        
 
     def readUserInput( self ):
+        """Check if both inputs are integers/NULL string. 
+        Convert NULL string to current position values.
+        If both inputs are integers/NULL string, call chechrange functioon, otherwise, error pop up. 
+        """
         if self.userAzi == "":
             self.userAzi = str ( self.Azimuth )
         if self.userEle == "":
             self.userEle = str( self.Elevation )
-        elif ((self.userAzi).isdigit()) and ((self.userEle).isdigit()):
-           self.checkrange()
+        elif (self.is_convertible_to_integer(self.userAzi)) and (self.is_convertible_to_integer(self.userEle)):
+            self.checkrange()
         else : 
             self.errorType = self.inputTypeError[0]
             self.errorMsg = self.inputTypeError[1]
             self.errorPopup()
 
     def checkrange( self ): 
+        """Check if input value(s) are in range. Send command if both in range, error pop up if not. 
+        """
         isInRange = True
         self.IntUserAzi = int(self.userAzi)
         self.IntUserEle = int(self.userEle)
@@ -117,8 +129,8 @@ class MotorControl:
         if isInRange:
             # self.commandToSend= self.moveCommandX + self.userAzi 
             # self.nextCommand = self.moveCommandY + self.userEle
-            self.commandToSend = self.commandGen + " x " + self.userAzi + " y " + self.userEle 
-            self.sendCommand()
+            # self.commandToSend = self.commandGen + " x " + self.userAzi + " y " + self.userEle 
+            self.sendCommand( self.commandGen + " x " + self.userAzi + " y " + self.userEle  )
             self.Azimuth = self.userAzi
             self.Elevation = self.userEle
         else: 
@@ -126,51 +138,58 @@ class MotorControl:
             self.errorMsg = self.rangeError[1] + "Azimuth: " + str(self.Azi_bound[0]) + "-" + str(self.Azi_bound[1]) + "\n" + "Elevation: " +  str(self.Ele_bound[0]) + "-" + str(self.Ele_bound[1])
             self.errorPopup()
    
-    def portConnection( self ):
+    def OpenSerial( self ):
+        """Open new serial connection
+        """
         if self.port != '':
            
             if self.ser.is_open:
                 self.ser.close()
             try:    
-                self.ser = serial.Serial(port= 'COM4', baudrate=9600 , bytesize= 8, parity='N', stopbits=1,xonxoff=0)
-                # print( "typing in setting commands" )
+                self.ser = serial.Serial(port= self.port, baudrate=9600 , bytesize= 8, parity='N', stopbits=1,xonxoff=0)
                 time.sleep(1)
                 # self.ser.write("\n")
                 # self.ser.write( self.startCommand[0] )
                 # # if self.readLine() = 
                 # self.ser.write( self.startCommand[1] )
                 # self.ser.write( "\n" ) 
-                print( "communication to motor controller is ready")
+                print( "communication to motor controller is ready" )
             except:
                  self.errorType = self.connectionError[0]
                  self.errorMsg = self.connectionError[1]
-                 self.errorPopup() 
+                 self.errorPopup()
+
+
+    def CloseSerial( self ):
+        try:
+            if not(self.ser.is_open()):
+                self.sendCommand( '' )
+                self.ser.close()
+        except: 
+            pass
+
 
     def EmargencyStop( self ):
         self.commandToSend = self.breakCommand
-        self.sendCommand()
+        self.sendCommand( "jog off x y" )
      
     def Park( self ):
-        self.commandToSend = self.commandGen + " x " + str( self.homeAzi ) + " y " + str( self.homeEle )
-        self.sendCommand()
+        # self.commandToSend = self.commandGen + " x " + str( self.homeAzi ) + " y " + str( self.homeEle )
+        self.sendCommand( self.commandGen + " x " + str( self.homeAzi ) + " y " + str( self.homeEle ) )
     
 
     def freeInput( self ):
         def ReadandSend():
 
-            self.commandToSend = inBox.get()
-            # print(inBox.get())
-            self.sendCommand()
-            # update()
+            line = inBox.get()
+            self.sendCommand( line )
+            update_text()
         
-        def update(): 
-            # current = returnLineBox["Text"]
-            print("current label" + returnLineBox["text"])
+        def update_text(): 
             try:
                 line = self.ser.readline()
                 if line.decode != '':
-                    returnLineBox["text"] = line.decode('utf-8')
-                print("new label" + returnLineBox["text"])
+                    self.returnLineBox.config(text = line.decode )
             except:
                 self.errorType = self.connectionError[0]
                 self.errorMsg = self.connectionError[1]
@@ -179,17 +198,19 @@ class MotorControl:
         freeWriting = tk.Tk() 
         freeWriting.title("Serial Communication")
 
-        labelInput      = tk.Label( freeWriting, text= "Type Input: ")
-        inBox           = tk.Entry( freeWriting , width= 50 )
-        enterButton     = tk.Button( freeWriting , text = "Enter" , command = ReadandSend )
-        returnLineBox   = tk.Label( freeWriting , text = 'hi')
+        outputFrame     = tk.Frame( freeWriting )
+        inputFrame      = tk.Frame( freeWriting )
+        labelInput      = tk.Label( inputFrame, text= "Type Input: ")
+        inBox           = tk.Entry( inputFrame , width= 50 )
+        enterButton     = tk.Button( inputFrame , text = "Enter" , command = ReadandSend )
+        self.returnLineBox   = tk.Label( outputFrame )
 
         labelInput.pack( padx = 10, pady = 5 )
         inBox.pack( side = 'left', padx = 10, pady = 5 )
         enterButton.pack( side = 'right' ,padx = 10, pady = 5)
-        returnLineBox.pack( padx = 10, pady = 5 )
+        self.returnLineBox.pack( padx = 10, pady = 5 )
 
-
+        freeWriting.after(1000, update_text)
         freeWriting.mainloop()
         
         
@@ -346,7 +367,9 @@ class FrontEnd():
         tabControl.pack(expand = 1, fill ="both") 
 
         self.serialInterface()
-        self.scpiInterface()
+        # self.scpiInterface()
+        # self.PythonInterface()
+        self.root.after(1000, self.update_time )
         self.root.mainloop()
 
     def scpiInterface(self):
@@ -398,6 +421,12 @@ class FrontEnd():
         self.chunkSizeLabel.grid(row = 2, column = 0, pady=5)
         self.chunkSizeWidget.grid(row = 3, column = 0, padx=20, pady=5, columnspan=2)
         self.applyButton.grid(row = 4, column = 0, columnspan=2, pady=10)
+    
+    # def PythonInterface( self ):
+    #     """Generates the python console window 
+    #     """ 
+    #     pyWindow = tix.Tk()
+    #     pyWindow.mainloop()
 
     def resetWidgetValues(self, event):
         """Event handler to reset widget values to their respective variables
@@ -452,31 +481,37 @@ class FrontEnd():
 
         tabSelect = self.tab1   # Select which tab this interface should be placed
 
-         # create motor from class "Motorcontrol"
-        self.motor = MotorControl( 0 , 90 )
+        # create motor from class "Motorcontrol"
+        self.motor = MotorControl( 0 , 0 )
         
-        # box for asi ele information 
-        self.positions      = tk.LabelFrame( tabSelect, text = "Antenna Position" )
-        self.quickButton    = tk.Frame( tabSelect )
-
-        self.positions.grid( row = 1, column = 0 , padx = 20 , pady = 10)
-        self.quickButton.grid( row = 1, column= 1 , padx = 20 , pady = 10)
-
         # port selection
         ports                   = list( serial.tools.list_ports.comports() ) 
         self.port_selection     = ttk.Combobox( tabSelect , values = ports )
         self.port_selection.grid(row = 0, column= 0 , padx = 20 , pady = 10)
 
-        # buttons : estop, park, free writing window
+        # time label 
+        self.clock_label = tk.Label( tabSelect, font= ('Arial', 14))
+        self.clock_label.grid( row= 0, column= 1, padx = 20 , pady = 10 )
+
+        # box for asi ele information 
+        self.positions      = tk.LabelFrame( tabSelect, text = "Antenna Position" )
+        self.quickButton    = tk.Frame( tabSelect )
+        self.positions.grid( row = 1, column = 0 , padx = 20 , pady = 10)
+        self.quickButton.grid( row = 1, column= 1 , padx = 20 , pady = 10)
+
+
+        # buttons : estop, park, free writing window, close
         self.EmargencyStop      = tk.Button( self.quickButton, text = "Emargency Stop", font = ('Arial', 16 ) , bg = 'red', fg = 'white' , command= self.Estop )
         self.Park               = tk.Button( self.quickButton, text = "Park", font = ('Arial', 16) , bg = 'blue', fg = 'white' , command = self.park )
-        self.openFreeWriting    = tk.Button( self.quickButton, text = "Open Serial Communication" ,font = ('Arial', 16 ), command= self.freewriting )
+        self.openFreeWriting    = tk.Button( self.quickButton, text = "Open Free Writing" ,font = ('Arial', 16 ), command= self.freewriting )
         # self.motorSettingButton = tk.Button( self.quickButton , text = "Motor Setting", font = ('Arial', 16 ), command = self.motor.MotorSetting )
+        self.close              = tk.Button( self.quickButton, text = "Close Window",font = ('Arial', 16 ), command = self.closeWin )
         
         self.EmargencyStop.pack()
         self.Park.pack( pady = 10 )
         self.openFreeWriting.pack( pady = 10 )
         # self.motorSettingButton.pack( pady = 10)
+        self.close.pack( pady = 20 )
 
         # azi,ele input boxes creation
         self.boxFrame           = tk.Frame( self.positions )
@@ -500,8 +535,25 @@ class FrontEnd():
         self.printbutton        = tk.Button( self.positions, text = "Enter", command = self.input )
         self.printbutton.pack( padx = 20, pady = 10, side = 'right' )
 
+    def update_time( self ):
+        current_time = time.strftime("%Y-%m-%d %H:%M:%S")
+        self.clock_label.config(text=current_time)
+        self.root.after(1000, self.update_time)
+
+
+    def closeWin( self ):
+        self.motor.CloseSerial()
+        self.root.destroy()
+
 
     def freewriting(self):
+        """Frexible serial communication Window
+        """
+        if self.motor.port != self.port_selection.get()[:4]: 
+            portName = self.port_selection.get()
+            self.motor.port = portName[:4]
+            self.motor.OpenSerial()
+
         self.motor.freeInput()
 
     def Estop(self):
@@ -509,7 +561,7 @@ class FrontEnd():
         if self.motor.port != self.port_selection.get()[:4]: 
             portName = self.port_selection.get()
             self.motor.port = portName[:4]
-            self.motor.portConnection()
+            self.motor.OpenSerial()
        
         self.motor.EmargencyStop()
     
@@ -517,7 +569,7 @@ class FrontEnd():
         if self.motor.port != self.port_selection.get()[:4]: 
             portName = self.port_selection.get()
             self.motor.port = portName[:4]
-            self.motor.portConnection()
+            self.motor.OpenSerial()
         self.motor.Park()
 
     def input(self):
@@ -525,7 +577,7 @@ class FrontEnd():
         if self.motor.port != self.port_selection.get()[:4]: 
             portName = self.port_selection.get()
             self.motor.port = portName[:4]
-            self.motor.portConnection()
+            self.motor.OpenSerial()
 
         self.motor.userAzi = self.inputAzimuth.get()
         self.motor.userEle = self.inputElevation.get()
