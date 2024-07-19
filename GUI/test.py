@@ -26,7 +26,7 @@ printasdf = 'print asdf'
 # ser.write('\r\n'.encode('utf-8'))
 ser.write('print "asdf"\r\n'.encode('utf-8'))
 print(type('print "asdf"\r\n'))
-time.sleep(1)
+# time.sleep(1)
 ser.write(b'drive on x y\r\n')
 time.sleep(1)
 ser.write(b'jog abs y 0\r\n')

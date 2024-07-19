@@ -1,28 +1,42 @@
-# from tkinter import *
+import tkinter as tk
+from tkinter import ttk
 # import os
+# import idlelib.idle
+from tkinter import tix
 
-# root = Tk()
-# termf = Frame(root, height=400, width=500)
-
-
-# # wid = termf.winfo_id()
-# os.system('start cmd -into %d -geometry 20x20 -sb &' % termf.winfo_id())
-# # os.system("python %d -geometry 40x20 -sb &" % wid)
-
-
+root = tix.Tk()
+root.tk.eval('package require Tix')
+termf = tk.Frame(root, height=400, width=500)
+pywindow = tix.Tk( screenName="pywindow")
+# pywindow.pack()
 # termf.pack(fill=BOTH, expand=YES)
+
+# wid = termf.winfo_id()
+
 # root.mainloop()
 
      
-def is_convertible_to_integer( input_str):
-    try:
-        int(input_str)
-        return True
-    except:
-        return False
+# def is_convertible_to_integer( input_str):
+#     try:
+#         int(input_str)
+#         return True
+#     except:
+#         return False
     
 
-usrint = str(-15)
-print(int(usrint))
-print(type(usrint))
-print(is_convertible_to_integer(usrint))
+# usrint = str(-15)
+# print(int(usrint))
+# print(type(usrint))
+# print(is_convertible_to_integer(usrint))
+
+# from tkinter import *
+# import subprocess as sub
+
+# p = sub.Popen('cmd.exe', stdout=sub.PIPE, stderr=sub.PIPE)
+# output, errors = p.communicate()
+
+# root = Tk()
+# text = Text(root)
+# text.pack()
+# text.insert(END, output)
+# root.mainloop()
