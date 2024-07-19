@@ -153,9 +153,12 @@ class MotorControl:
 
 
     def CloseSerial( self ):
-        if not(self.ser.is_open):
-            self.sendCommand( '' )
-            self.ser.close()
+        try:
+            if not(self.ser.is_open()):
+                self.sendCommand( '' )
+                self.ser.close()
+        except: 
+            pass
 
 
     def EmargencyStop( self ):
@@ -178,7 +181,7 @@ class MotorControl:
             try:
                 line = self.ser.readline()
                 if line.decode != '':
-                    self.returnLineBox.config(text = line.decode)
+                    self.returnLineBox.config(text = line.decode )
             except:
                 self.errorType = self.connectionError[0]
                 self.errorMsg = self.connectionError[1]
@@ -382,7 +385,7 @@ class FrontEnd():
         self.Park               = tk.Button( self.quickButton, text = "Park", font = ('Arial', 16) , bg = 'blue', fg = 'white' , command = self.park )
         self.openFreeWriting    = tk.Button( self.quickButton, text = "Open Free Writing" ,font = ('Arial', 16 ), command= self.freewriting )
         # self.motorSettingButton = tk.Button( self.quickButton , text = "Motor Setting", font = ('Arial', 16 ), command = self.motor.MotorSetting )
-        self.close              = tk.Button( self.quickButton, text = "Close window",font = ('Arial', 16 ), command = self.closeWin )
+        self.close              = tk.Button( self.quickButton, text = "Close Window",font = ('Arial', 16 ), command = self.closeWin )
         
         self.EmargencyStop.pack()
         self.Park.pack( pady = 10 )
