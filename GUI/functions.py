@@ -172,16 +172,13 @@ class MotorControl:
 
             line = inBox.get()
             self.sendCommand( line )
-            # update()
+            update_text()
         
-        def update(): 
-            # current = returnLineBox["Text"]
-            print("current label" + returnLineBox["text"])
+        def update_text(): 
             try:
                 line = self.ser.readline()
                 if line.decode != '':
-                    returnLineBox["text"] = line.decode('utf-8')
-                print("new label" + returnLineBox["text"])
+                    self.returnLineBox.config(text = line.decode)
             except:
                 self.errorType = self.connectionError[0]
                 self.errorMsg = self.connectionError[1]
@@ -190,17 +187,19 @@ class MotorControl:
         freeWriting = tk.Tk() 
         freeWriting.title("Serial Communication")
 
-        labelInput      = tk.Label( freeWriting, text= "Type Input: ")
-        inBox           = tk.Entry( freeWriting , width= 50 )
-        enterButton     = tk.Button( freeWriting , text = "Enter" , command = ReadandSend )
-        returnLineBox   = tk.Label( freeWriting , text = 'hi')
+        outputFrame     = tk.Frame( freeWriting )
+        inputFrame      = tk.Frame( freeWriting )
+        labelInput      = tk.Label( inputFrame, text= "Type Input: ")
+        inBox           = tk.Entry( inputFrame , width= 50 )
+        enterButton     = tk.Button( inputFrame , text = "Enter" , command = ReadandSend )
+        self.returnLineBox   = tk.Label( outputFrame )
 
         labelInput.pack( padx = 10, pady = 5 )
         inBox.pack( side = 'left', padx = 10, pady = 5 )
         enterButton.pack( side = 'right' ,padx = 10, pady = 5)
-        returnLineBox.pack( padx = 10, pady = 5 )
+        self.returnLineBox.pack( padx = 10, pady = 5 )
 
-
+        freeWriting.after(1000, update_text)
         freeWriting.mainloop()
         
         
