@@ -8,6 +8,7 @@ import serial.tools.list_ports
 import time
 import pyvisa as visa
 # from tkinter import tix
+import astropy
 
 # CONSTANTS
 RETURN_ERROR = 1
@@ -318,6 +319,7 @@ class FrontEnd():
         self.serialInterface()
         # self.scpiInterface()
         # self.PythonInterface()
+        self.root.after(1000, self.update_time )
         self.root.mainloop()
 
     def scpiInterface(self):
@@ -365,6 +367,10 @@ class FrontEnd():
         self.port_selection     = ttk.Combobox( tabSelect , values = ports )
         self.port_selection.grid(row = 0, column= 0 , padx = 20 , pady = 10)
 
+        # time label 
+        self.clock_label = tk.Label( tabSelect, font= ('Arial', 14))
+        self.clock_label.grid( row= 0, column= 1, padx = 20 , pady = 10 )
+
         # box for asi ele information 
         self.positions      = tk.LabelFrame( tabSelect, text = "Antenna Position" )
         self.quickButton    = tk.Frame( tabSelect )
@@ -407,7 +413,12 @@ class FrontEnd():
         self.printbutton        = tk.Button( self.positions, text = "Enter", command = self.input )
         self.printbutton.pack( padx = 20, pady = 10, side = 'right' )
 
-    
+    def update_time( self ):
+        current_time = time.strftime("%Y-%m-%d %H:%M:%S")
+        self.clock_label.config(text=current_time)
+        self.root.after(1000, self.update_time)
+
+
     def closeWin( self ):
         self.motor.CloseSerial()
         self.root.destroy()
