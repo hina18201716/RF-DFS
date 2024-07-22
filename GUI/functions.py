@@ -8,7 +8,7 @@ import serial.tools.list_ports
 import time
 import pyvisa as visa
 # from tkinter import tix
-import astropy
+
 
 # CONSTANTS
 RETURN_ERROR = 1
@@ -50,18 +50,18 @@ class MotorControl:
         """
         messagebox.showwarning( title= self.errorType , message= self.errorMsg )
 
-    def sendCommand( self , command ):
+    def sendCommand( self, command ):
         """Serial Communication, write in serial. Error pop up if fails. 
         """
         try: 
             
-            # time.sleep(1)
+            time.sleep(1)
             self.ser.write( str(command).encode('utf-8'))
-            # time.sleep(1)
-            self.readLine()
             # time.sleep(1)
 
             print("command sent \n")
+
+            # self.readLine()
         except:
             
             self.errorType = self.connectionError[0]
@@ -72,10 +72,16 @@ class MotorControl:
     def readLine( self ):
         """Serial Commmunication, read until End Of Line charactor
         """
-        msg = self.ser.readline()
-        # message = msg.decode('utf-8') 
-        print(msg)
-        
+        try:
+            msg = self.ser.readline()
+            # message = msg.decode('utf-8') 
+            print(msg)
+        except:
+            self.errorType = self.connectionError[0]
+            self.errorMsg = self.connectionError[1]
+            self.errorPopup()
+
+
     def is_convertible_to_integer(self, input_str):
         """
         Check if given string is convertivle to integer. (Positive int, Negative int, Zero) 
@@ -121,8 +127,9 @@ class MotorControl:
         if isInRange:
             # self.commandToSend= self.moveCommandX + self.userAzi 
             # self.nextCommand = self.moveCommandY + self.userEle
-            # self.commandToSend = self.commandGen + " x " + self.userAzi + " y " + self.userEle 
-            self.sendCommand( self.commandGen + " x " + self.userAzi + " y " + self.userEle  )
+            commandToSend = self.commandGen + " x " + self.userAzi + " y " + self.userEle 
+            print("Raange Check cleared")
+            self.sendCommand( commandToSend )
             self.Azimuth = self.userAzi
             self.Elevation = self.userEle
         else: 
@@ -139,13 +146,20 @@ class MotorControl:
                 self.ser.close()
             try:    
                 self.ser = serial.Serial(port= self.port, baudrate=9600 , bytesize= 8, parity='N', stopbits=1,xonxoff=0)
-                time.sleep(1)
-                # self.ser.write("\n")
-                # self.ser.write( self.startCommand[0] )
-                # # if self.readLine() = 
-                # self.ser.write( self.startCommand[1] )
-                # self.ser.write( "\n" ) 
+                
+                print( self.ser.is_open )
+
+                # while( self.ser.readline().isspace() ): 
+                #     print( "waiting" )
+                
+
+                # if ( self.ser.readline() == b'SYS'  ):
+                #     self.ser.write( self.startCommand[0] )
+                # if ( self.ser.readline() == b'P00' ):
+                #     self.ser.write( self.startCommand[1] )      
+                
                 print( "communication to motor controller is ready" )
+                
             except:
                  self.errorType = self.connectionError[0]
                  self.errorMsg = self.connectionError[1]
@@ -166,7 +180,6 @@ class MotorControl:
         self.sendCommand( "jog off x y" )
      
     def Park( self ):
-        # self.commandToSend = self.commandGen + " x " + str( self.homeAzi ) + " y " + str( self.homeEle )
         self.sendCommand( self.commandGen + " x " + str( self.homeAzi ) + " y " + str( self.homeEle ) )
     
 
@@ -180,8 +193,8 @@ class MotorControl:
         def update_text(): 
             try:
                 line = self.ser.readline()
-                if line.decode != '':
-                    self.returnLineBox.config(text = line.decode )
+                if line.decode('utf-8') != '':
+                    self.returnLineBox.config(text = line.decode('utf-8') )
             except:
                 self.errorType = self.connectionError[0]
                 self.errorMsg = self.connectionError[1]
@@ -192,6 +205,10 @@ class MotorControl:
 
         outputFrame     = tk.Frame( freeWriting )
         inputFrame      = tk.Frame( freeWriting )
+
+        inputFrame.pack()
+        outputFrame.pack()
+
         labelInput      = tk.Label( inputFrame, text= "Type Input: ")
         inBox           = tk.Entry( inputFrame , width= 50 )
         enterButton     = tk.Button( inputFrame , text = "Enter" , command = ReadandSend )
@@ -201,8 +218,8 @@ class MotorControl:
         inBox.pack( side = 'left', padx = 10, pady = 5 )
         enterButton.pack( side = 'right' ,padx = 10, pady = 5)
         self.returnLineBox.pack( padx = 10, pady = 5 )
-
-        freeWriting.after(1000, update_text)
+    
+        # freeWriting.after(1000, update_text)
         freeWriting.mainloop()
         
         
