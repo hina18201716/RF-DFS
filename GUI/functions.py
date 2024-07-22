@@ -1,5 +1,6 @@
 # import tkinter as tk
 # from tkinter import ttk
+from tkinter import *
 from tkinter import messagebox
 import tkinter as tk
 from tkinter import ttk
@@ -7,12 +8,19 @@ import serial
 import serial.tools.list_ports
 import time
 import pyvisa as visa
+from pyvisa import constants
 # from tkinter import tix
 
 
 # CONSTANTS
 RETURN_ERROR = 1
 RETURN_SUCCESS = 0
+CHUNK_SIZE_DEF = 20480     # Default byte count to read when issuing viRead
+CHUNK_SIZE_MIN = 1024
+CHUNK_SIZE_MAX = 1048576  # Max chunk size allowed
+TIMEOUT_DEF = 2000        # Default VISA timeout value
+TIMEOUT_MIN = 1000        # Minimum VISA timeout value
+TIMEOUT_MAX = 25000       # Maximum VISA timeout value
 
 class MotorControl: 
  
@@ -273,9 +281,6 @@ class MotorControl:
         
 ########################################################################################################################################
 class VisaControl():
-    def __init__(self):
-        self.instr = ''
-
     def openRsrcManager(self):
         """Opens the VISA resource manager on the default backend (NI-VISA). If the VISA library cannot be found, a path must be passed to pyvisa.highlevel.ResourceManager() constructor
 
@@ -290,21 +295,61 @@ class VisaControl():
             return RETURN_ERROR     
         return RETURN_SUCCESS
     
-    def connectToRsrc(self):
-        """Opens a session to the resource ID located in self.instr
+    def connectToRsrc(self, inputString):
+        """Opens a session to the resource ID passed from inputString if it is not already connected
+
+        Args:
+            inputString (string): Name of the resource ID to attempt to connect to. 
 
         Returns:
             0: On success
             1: On error
         """
-        if self.instr != '':
-            print('Connecting to resource: ' + self.instr)
-            viConnected = self.rm.open_resource(self.instr)
-            if self.isError():
-                print('Could not open a session to ' + self.instr)
-                print('Error Code:' + self.rm.last_status)
+        try:
+            self.openRsrc.session                           # Is a session open? (Will throw error if not open)
+        except:
+            pass                                            # If not open --> continue
+        else:
+            if self.openRsrc.resource_name == inputString:  # Is the open resource's ID the same as inputString?
+                print('Device is already connected')
+                return RETURN_SUCCESS                       # If yes --> return
+        
+        # If a session is not open or the open resource does not match inputString, attempt connection to inputString
+        print('Connecting to resource: ' + inputString)
+        self.openRsrc = self.rm.open_resource(inputString)
+        if self.isError():
+            print('Could not open a session to ' + inputString)
+            print('Error Code:' + self.rm.last_status)
+            return RETURN_ERROR
+        return RETURN_SUCCESS
+    
+    def setConfig(self, timeout, chunkSize):
+        if self.isSessionOpen():
+            try:
+                self.openRsrc.timeout = timeout
+                self.openRsrc.chunk_size = chunkSize
+                return RETURN_SUCCESS
+            except:
+                print(f'An exception occurred. Error code: {self.rm.last_status}')
                 return RETURN_ERROR
-            return RETURN_SUCCESS
+        else:
+            print("Session to a resource is not open")
+            return RETURN_ERROR
+            
+        
+    def isSessionOpen(self):
+        """Tests if a session is open to the variable openRsrc
+
+        Returns:
+            False: If session is closed
+            True: If session is open
+        """
+        try:
+            self.openRsrc.session                           # Is a session open? (Will throw error if not open)
+        except:
+            return False
+        else:
+            return True
         
     def isError(self):
         """Checks the last status code returned from an operation at the opened resource manager (self.rm)
@@ -313,11 +358,13 @@ class VisaControl():
             0: On success or warning (Operation succeeded)
             1: On error
         """
-        if self.rm.last_status < 0:
-            return RETURN_ERROR
+        if self.rm.last_status < constants.VI_SUCCESS:
+            return self.rm.last_status
         else:
             print('Success code:', hex(self.rm.last_status))
             return RETURN_SUCCESS
+        
+        
 
 class FrontEnd():
     def __init__(self):
@@ -333,6 +380,7 @@ class FrontEnd():
 
         tabControl.add(self.tab1, text ='Tab 1') 
         tabControl.add(self.tab2, text ='Tab 2') 
+        tabControl.bind('<Button-1>', self.resetWidgetValues)
         tabControl.pack(expand = 1, fill ="both") 
 
         self.serialInterface()
@@ -345,26 +393,51 @@ class FrontEnd():
         """Generates the SCPI communication interface on the developer's tab of choice at tabSelect
         """
 
-        tabSelect = self.tab2           # Select which tab this interface should be placed
+        tabSelect = self.tab2                # Select which tab this interface should be placed
+        self.timeout = TIMEOUT_DEF           # VISA timeout value
+        self.chunkSize = CHUNK_SIZE_DEF      # Bytes to read from buffer
+        self.instrument = ''                 # ID of the currently open instrument. Used only in resetWidgetValues method
         vi = VisaControl()
         vi.openRsrcManager()
-        instruments = vi.rm.list_resources()
+
+        def onConnectPress():
+            """Connect to the resource and update the string in self.instrument
+            """
+            if vi.connectToRsrc(self.instrSelectBox.get()) == RETURN_SUCCESS:
+                self.instrument = self.instrSelectBox.get()
+        def onRefreshPress():
+            """Update the values in the SCPI instrument selection box
+            """
+            print('Searching for resources...')
+            self.instrSelectBox['values'] = vi.rm.list_resources()
 
         # Instrument selection panel
+        # ISSUE: Apply changes should only be pressable when changes are detected
         ttk.Label(tabSelect, text = "Select a SCPI instrument:", 
           font = ("Times New Roman", 10)).grid(column = 0, 
-          row = 0, padx = 10, pady = 25) 
-        def updateInstruments():
-            instruments = vi.rm.list_resources()
-        self.instrSelection = ttk.Combobox(tabSelect, values = instruments, width=60, postcommand = lambda:updateInstruments())
-        self.instrSelection.grid(row = 0, column = 1, padx = 20 , pady = 10)
-        self.selectButton = tk.Button(tabSelect, text = "Confirm", command = lambda:print(self.instSelection.get()))
-        self.selectButton.grid(row = 0, column = 3)
+          row = 0, padx = 5, pady = 25) 
+        self.instrSelectBox = ttk.Combobox(tabSelect, values = vi.rm.list_resources(), width=40)
+        self.instrSelectBox.grid(row = 0, column = 1, padx = 10 , pady = 10)
+        self.refreshButton = tk.Button(tabSelect, text = "Refresh", command = lambda:onRefreshPress())
+        self.refreshButton.grid(row = 0, column = 2, padx=5)
+        self.confirmButton = tk.Button(tabSelect, text = "Connect", command = lambda:onConnectPress())
+        self.confirmButton.grid(row = 0, column = 3, padx=5)
 
-        # Check if the current instrument ID is equivalent to the string in the combobox instrSelection
-        if vi.instr != self.instrSelection.get():     
-            vi.instr = self.instrSelection.get()
-            vi.connectToRsrc()
+        self.configFrame = ttk.LabelFrame(tabSelect, borderwidth = 2, text = "VISA Configuration")
+        self.configFrame.grid(row = 1, column = 0, padx=20, pady=10)
+        self.timeoutLabel = ttk.Label(self.configFrame, text = 'Timeout (ms)')
+        self.timeoutWidget = ttk.Spinbox(self.configFrame, from_=TIMEOUT_MIN, to=TIMEOUT_MAX, increment=100)
+        self.timeoutWidget.set(self.timeout)
+        self.chunkSizeLabel = ttk.Label(self.configFrame, text = 'Chunk size (Bytes)')
+        self.chunkSizeWidget = ttk.Spinbox(self.configFrame, from_=CHUNK_SIZE_MIN, to=CHUNK_SIZE_MAX, increment=10240)
+        self.chunkSizeWidget.set(self.chunkSize)
+        self.applyButton = tk.Button(self.configFrame, text = "Apply Changes", command = lambda:self.scpiApplyConfig(vi, self.timeoutWidget.get(), self.chunkSizeWidget.get()))
+        
+        self.timeoutLabel.grid(row = 0, column = 0, pady=5)
+        self.timeoutWidget.grid(row = 1, column = 0, padx=20, pady=5, columnspan=2)
+        self.chunkSizeLabel.grid(row = 2, column = 0, pady=5)
+        self.chunkSizeWidget.grid(row = 3, column = 0, padx=20, pady=5, columnspan=2)
+        self.applyButton.grid(row = 4, column = 0, columnspan=2, pady=10)
     
     # def PythonInterface( self ):
     #     """Generates the python console window 
@@ -372,6 +445,53 @@ class FrontEnd():
     #     pyWindow = tix.Tk()
     #     pyWindow.mainloop()
 
+    def resetWidgetValues(self, event):
+        """Event handler to reset widget values to their respective variables
+
+        Args:
+            event (event): Argument passed by tkinter event (Varies for each event)
+        """
+        try:
+            self.timeoutWidget.set(self.timeout)
+            self.chunkSizeWidget.set(self.chunkSize)
+            self.instrSelectBox.set(self.instrument)
+        except:
+            pass
+    
+    def scpiApplyConfig(self, vi, timeoutArg, chunkSizeArg):
+        """Applies changes made in the SCPI configuration frame to variables timeout and chunkSize, Then issues VISA commands set config
+
+        Args:
+            vi (VisaControl): Instance of class VisaControl to apply config to. Note some configs will be applied to all VISA attributes, not just the opened resource(s)
+            timeoutArg (string): Argument received from timeout widget which will be tested for type int and within range
+            chunkSizeArg (string): Argument received from chunkSize widget which will be tested for type int and within range
+
+        Raises:
+            TypeError: ttk::spinbox get() does not return type int or integer out of range for respective variable
+
+        Returns:
+            0: On success
+            1: On error
+        """
+        try:
+            timeoutArg = int(self.timeoutWidget.get())
+            chunkSizeArg = int(self.chunkSizeWidget.get())
+        except:
+            raise TypeError('ttk::spinbox get() did not return type int')
+        
+        if timeoutArg < TIMEOUT_MIN or timeoutArg > TIMEOUT_MAX:
+            raise TypeError(f'int timeout out of range. Min: {TIMEOUT_MIN}, Max: {TIMEOUT_MAX}')
+        if chunkSizeArg < CHUNK_SIZE_MIN or chunkSizeArg > CHUNK_SIZE_MAX:
+            raise TypeError(f'int chunkSize out of range. Min: {CHUNK_SIZE_MIN}, Max: {CHUNK_SIZE_MAX}')
+        
+        if vi.setConfig(timeoutArg, chunkSizeArg) == RETURN_SUCCESS:
+            print(f'Operation successful. Timeout: {vi.openRsrc.timeout}, Chunk size: {vi.openRsrc.chunk_size}')
+            self.timeout = timeoutArg
+            self.chunkSize = chunkSizeArg
+            return RETURN_SUCCESS
+        else:
+            return RETURN_ERROR
+    
     def serialInterface(self):
         """Generates the serial communication interface on the developer's tab of choice at tabSelect
         """
