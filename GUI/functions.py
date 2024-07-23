@@ -63,13 +63,15 @@ class MotorControl:
         """
         try: 
             
-            time.sleep(1)
-            self.ser.write( str(command).encode('utf-8'))
+            # time.sleep(1)
+            self.ser.write( str(command).encode('utf-8')+'\r\n'.encode('utf-8') )
             # time.sleep(1)
 
             print("command sent \n")
 
-            # self.readLine()
+            self.readLine()
+            self.readLine()
+
         except:
             
             self.errorType = self.connectionError[0]
@@ -81,6 +83,7 @@ class MotorControl:
         """Serial Commmunication, read until End Of Line charactor
         """
         try:
+            time.sleep(2)
             msg = self.ser.readline()
             # message = msg.decode('utf-8') 
             print(msg)
@@ -138,6 +141,7 @@ class MotorControl:
             commandToSend = self.commandGen + " x " + self.userAzi + " y " + self.userEle 
             print("Raange Check cleared")
             self.sendCommand( commandToSend )
+            self.readLine()
             self.Azimuth = self.userAzi
             self.Elevation = self.userEle
         else: 
@@ -165,6 +169,13 @@ class MotorControl:
                 #     self.ser.write( self.startCommand[0] )
                 # if ( self.ser.readline() == b'P00' ):
                 #     self.ser.write( self.startCommand[1] )      
+                self.ser.write(b'\r\n')
+                self.ser.write(b'\r\n')
+
+                    
+                self.readLine()
+                self.readLine()
+
                 
                 print( "communication to motor controller is ready" )
                 
@@ -178,6 +189,7 @@ class MotorControl:
         try:
             if not(self.ser.is_open()):
                 self.sendCommand( '' )
+                self.readLine()
                 self.ser.close()
         except: 
             pass
@@ -186,17 +198,20 @@ class MotorControl:
     def EmargencyStop( self ):
         self.commandToSend = self.breakCommand
         self.sendCommand( "jog off x y" )
-     
+        self.readLine()
+
+
     def Park( self ):
         self.sendCommand( self.commandGen + " x " + str( self.homeAzi ) + " y " + str( self.homeEle ) )
-    
+        self.readLine()
+
 
     def freeInput( self ):
         def ReadandSend():
 
             line = inBox.get()
             self.sendCommand( line )
-            update_text()
+            # update_text()
         
         def update_text(): 
             try:
@@ -560,6 +575,7 @@ class FrontEnd():
 
     def closeWin( self ):
         self.motor.CloseSerial()
+        
         self.root.destroy()
 
 
