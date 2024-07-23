@@ -1,4 +1,5 @@
 /PCB/*/*-backups/
+/PCB/*-backups/
 Figures/*
 */test.py
 
@@ -6,3 +7,5 @@ Figures/*
 __pycache__/
 *.py[cod]
 *$py.class
+test.py
+pyterminal.py
