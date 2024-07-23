@@ -306,7 +306,7 @@ class VisaControl():
             return RETURN_ERROR
         return RETURN_SUCCESS
     
-    def setConfig(self, timeout, chunkSize):
+    def setConfig(self, timeout, chunkSize, sendEnd, enableTerm, termChar):
         """Applies VISA attributes passed in arguments to the open resource when called
 
         Args:
@@ -320,7 +320,14 @@ class VisaControl():
         if self.isSessionOpen():
             try:
                 self.openRsrc.timeout = timeout
-                self.openRsrc.chunk_size = chunkSize    
+                self.openRsrc.chunk_size = chunkSize
+                self.openRsrc.send_end = sendEnd
+                if enableTerm:
+                    self.openRsrc.write_termination = termChar
+                    self.openRsrc.read_termination = termChar
+                else:
+                    self.openRsrc.write_termination = ''
+                    self.openRsrc.read_termination = ''
                 return RETURN_SUCCESS
             except:
                 print(f'An exception occurred. Error code: {self.rm.last_status}')
@@ -409,13 +416,13 @@ class FrontEnd():
             """
             if vi.connectToRsrc(self.instrSelectBox.get()) == RETURN_SUCCESS:
                 self.instrument = self.instrSelectBox.get()
+                self.scpiApplyConfig(vi, self.timeoutWidget.get(), self.chunkSizeWidget.get())
         def onRefreshPress():
             """Update the values in the SCPI instrument selection box
             """
             print('Searching for resources...')
             self.instrSelectBox['values'] = vi.rm.list_resources()
         def onEnableTermPress():
-            print(self.enableTerm.get())
             if self.enableTerm.get():
                 self.selectTermWidget.config(state='readonly')
             else:
@@ -450,7 +457,6 @@ class FrontEnd():
         self.chunkSizeWidget.grid(row = 3, column = 0, padx=20, pady=5, columnspan=2)
         self.applyButton.grid(row = 7, column = 0, columnspan=2, pady=10)
         # VISA TERMINATION FRAME
-        # ISSUE: These widgets do not issue visa commands yet
         self.termFrame = ttk.LabelFrame(tabSelect, borderwidth=2, text = 'Termination Methods')
         self.termFrame.grid(row = 1, column = 1, padx = 5, pady = 10, sticky=tk.N+tk.W)
         self.sendEndWidget = ttk.Checkbutton(self.termFrame, text = 'Send \'End or Identify\' on write', variable=self.sendEnd)
@@ -471,29 +477,38 @@ class FrontEnd():
         """Event handler to reset widget values to their respective variables
 
         Args:
+            vi (VisaControl): VisaControl object to retrieve VISA values from
             event (event): Argument passed by tkinter event (Varies for each event)
         """
+        # These widgets values are stored in variables and will be reset to the variable on function call
         try:
             self.timeoutWidget.set(self.timeout)
             self.chunkSizeWidget.set(self.chunkSize)
             self.instrSelectBox.set(self.instrument)
-            try:
-                self.sendEnd.set(vi.openRsrc.send_end)
-                readTerm = ord(vi.openRsrc.read_termination)
-                if ord(readTerm) == 10:
-                    self.enableTerm.set(TRUE)
-                    self.selectTermWidget.set(self.SELECT_TERM_VALUES[0])
-                elif ord(readTerm) == 13:
-                    self.enableTerm.set(TRUE)
-                    self.selectTermWidget.set(self.SELECT_TERM_VALUES[1])
-            except:
-                self.enableTerm.set(FALSE)
-                self.selectTermWidget.set(str(vi.openRsrc.read_termination))
         except:
             pass
-    
+        # These widget values are retrieved from vi.openRsrc and will be reset depending on the values returned
+        try:
+            self.sendEnd.set(vi.openRsrc.send_end)
+            readTerm = repr(vi.openRsrc.read_termination)
+            if readTerm == repr(''):
+                self.enableTerm.set(FALSE)
+                self.selectTermWidget.set('')
+            elif readTerm == repr('\n'):
+                self.enableTerm.set(TRUE)
+                self.selectTermWidget.set(self.SELECT_TERM_VALUES[0])
+            elif readTerm == repr('\r'):
+                self.enableTerm.set(TRUE)
+                self.selectTermWidget.set(self.SELECT_TERM_VALUES[1])
+            if self.enableTerm.get():
+                self.selectTermWidget.config(state='readonly')
+            else:
+                self.selectTermWidget.config(state='disabled')  
+        except:
+            pass
+        
     def scpiApplyConfig(self, vi, timeoutArg, chunkSizeArg):
-        """Applies changes made in the SCPI configuration frame to variables timeout and chunkSize, Then issues VISA commands set config
+        """Issues VISA commands to set config and applies changes made in the SCPI configuration frame to variables timeout and chunkSize (for resetWidgetValues)
 
         Args:
             vi (VisaControl): Instance of class VisaControl to apply config to. Note some configs will be applied to all VISA attributes, not just the opened resource(s)
@@ -507,21 +522,30 @@ class FrontEnd():
             0: On success
             1: On error
         """
+        # Get the termination character from selectTermWidget
+        termSelectIndex = self.selectTermWidget.current()
+        if termSelectIndex == 0:
+            termChar = '\n'
+        elif termSelectIndex == 1:
+            termChar = '\r'
+        else:
+            termChar = ''
+        # Get timeout and chunk size values from respective widgets
         try:
             timeoutArg = int(self.timeoutWidget.get())
             chunkSizeArg = int(self.chunkSizeWidget.get())
         except:
             raise TypeError('ttk::spinbox get() did not return type int')
-        
+        # Test timeout and chunk size for within range
         if timeoutArg < TIMEOUT_MIN or timeoutArg > TIMEOUT_MAX:
             raise TypeError(f'int timeout out of range. Min: {TIMEOUT_MIN}, Max: {TIMEOUT_MAX}')
         if chunkSizeArg < CHUNK_SIZE_MIN or chunkSizeArg > CHUNK_SIZE_MAX:
             raise TypeError(f'int chunkSize out of range. Min: {CHUNK_SIZE_MIN}, Max: {CHUNK_SIZE_MAX}')
-        
-        if vi.setConfig(timeoutArg, chunkSizeArg) == RETURN_SUCCESS:
-            print(f'Operation successful. Timeout: {vi.openRsrc.timeout}, Chunk size: {vi.openRsrc.chunk_size}')
+        # Call vi.setConfig and if successful, print output and set variables for resetWidgetValues
+        if vi.setConfig(timeoutArg, chunkSizeArg, self.sendEnd.get(), self.enableTerm.get(), termChar) == RETURN_SUCCESS:
             self.timeout = timeoutArg
             self.chunkSize = chunkSizeArg
+            print(f'Timeout: {vi.openRsrc.timeout}, Chunk size: {vi.openRsrc.chunk_size}, Send EOI: {vi.openRsrc.send_end}, Termination: {repr(vi.openRsrc.write_termination)}')
             return RETURN_SUCCESS
         else:
             return RETURN_ERROR
