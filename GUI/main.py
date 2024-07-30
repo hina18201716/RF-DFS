@@ -2,15 +2,20 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter.ttk import *
 from functions import *
+import sys
 
 
 
+DFSwindow = FrontEnd()
 
+# # python  console creation
+# console = tk.Text(DFSwindow.root, height = 10 )
+# console.pack()
+# consoleButton = tk.Button(DFSwindow.root, text = 'output', command = lambda : redirector())
+# consoleButton.pack()   
 
-FrontEnd()
+# def redirector(inputStr):
+#     console.insert(INSERT, inputStr)
 
-# def codeerror():
-#     # show error message when ACR9000 pass error2
-#     return True
-
+# sys.stdout.write = redirector #whenever sys.stdout.write is called, redirector is called.
 

@@ -9,7 +9,7 @@ import serial.tools.list_ports
 import time
 import pyvisa as visa
 from pyvisa import constants
-# from tkinter import tix
+import sys
 
 
 # CONSTANTS
@@ -187,13 +187,13 @@ class MotorControl:
 
     def CloseSerial( self ):
         try:
+            
             if not(self.ser.is_open()):
                 self.sendCommand( '' )
                 self.readLine()
                 self.ser.close()
         except: 
-            pass
-
+            print("closing serial communication")
 
     def EmargencyStop( self ):
         self.commandToSend = self.breakCommand
@@ -245,56 +245,6 @@ class MotorControl:
         # freeWriting.after(1000, update_text)
         freeWriting.mainloop()
         
-        
-#######################################################################################################################################
-    # def MotorSetting( self ):
-    #     settingWindow = tk.Tk()
-    #     settingWindow.geometry('400x200')
-    #     settingWindow.title('MotorSetting')
-
-    #     # home is 1x2 (azimuth, elevation)
-    #     home = []
-    #     # bounds is 2x2 (lower and upper bound for each direction)
-    #     bounds = []
-      
-    #     frame = tk.Frame( settingWindow )
-    #     currName = tk.Label( frame, text = "Curent Default" )
-    #     newName = tk.Label( frame, text = "New Default" )
-    #     currAzi = tk.Label( frame, text = str( self.homeAzi ))
-    #     currEle = tk.Label( frame, text = str( self.homeEle ))
-    #     labelAzi = tk.Label( frame, text = "Azimuth ")
-    #     labelEle = tk.Label( frame, text = " Elevatin ")
-    #     newhomeAzi = tk.Entry( frame, width = 10 )
-    #     newhomeEle = tk.Entry( frame, width = 10 )
-
-    #     currName.grid(row = 0, column = 1, padx = 5, pady = 5)
-    #     newName.grid(row = 0, column = 2, padx = 5, pady = 5)
-        
-    #     labelAzi.grid(row = 1, column = 0, padx = 5, pady = 5)
-    #     currAzi.grid(row = 1, column = 1, padx = 5, pady = 5)
-    #     newhomeAzi.grid(row = 1, column = 2, padx = 5, pady = 5)
-
-    #     labelEle.grid(row = 2, column = 0, padx = 5, pady = 5)
-    #     currEle.grid(row = 2, column = 1, padx = 5, pady = 5)
-    #     newhomeEle.grid(row = 2, column = 2, padx = 5, pady = 5)
-    #     frame.pack()
-
-    #     enterButton = tk.Button( settingWindow, text = "Enter", command = self.updateValues )
-    #     enterButton.pack()
-    #     settingWindow.mainloop()
-
-    #     # home = [newhomeAzi.get(),newhomeEle.get()]
-    
-    # def updateValues( self ):
-    #     try:
-    #         self.homeAzi = self.MotorSetting.newhomeAzi.get()
-    #         # self.homeAzi = self.MotorSetting[0]
-    #         # self.homeEle = self.MotorSetting[1]
-    #         print( self.homeAzi , self.homeEle )
-    #     except: 
-    #         messagebox.showwarning( title = "Default update error", message= "Failed to update default value" )
-        
-########################################################################################################################################
 class VisaControl():
     def openRsrcManager(self):
         """Opens the VISA resource manager on the default backend (NI-VISA). If the VISA library cannot be found, a path must be passed to pyvisa.highlevel.ResourceManager() constructor
@@ -396,13 +346,20 @@ class FrontEnd():
         tabControl.add(self.tab1, text ='Tab 1') 
         tabControl.add(self.tab2, text ='Tab 2') 
         tabControl.bind('<Button-1>', self.resetWidgetValues)
-        tabControl.pack(expand = 1, fill ="both") 
+        tabControl.pack(expand = 1, fill ="both")
+
+        # # python  console creation
+        # self.console = tk.Text(self.root, height = 10 )
+        # self.console.pack()
+        # self.consoleButton = tk.Button(self.root, text = 'output', command = lambda : redirector())
+        # self.consoleButton.pack()   
+
 
         self.serialInterface()
-        # self.scpiInterface()
-        # self.PythonInterface()
+        #self.scpiInterface()
         self.root.after(1000, self.update_time )
         self.root.mainloop()
+
 
     def scpiInterface(self):
         """Generates the SCPI communication interface on the developer's tab of choice at tabSelect
@@ -453,12 +410,7 @@ class FrontEnd():
         self.chunkSizeLabel.grid(row = 2, column = 0, pady=5)
         self.chunkSizeWidget.grid(row = 3, column = 0, padx=20, pady=5, columnspan=2)
         self.applyButton.grid(row = 4, column = 0, columnspan=2, pady=10)
-    
-    # def PythonInterface( self ):
-    #     """Generates the python console window 
-    #     """ 
-    #     pyWindow = tix.Tk()
-    #     pyWindow.mainloop()
+
 
     def resetWidgetValues(self, event):
         """Event handler to reset widget values to their respective variables
@@ -537,13 +489,13 @@ class FrontEnd():
         self.Park               = tk.Button( self.quickButton, text = "Park", font = ('Arial', 16) , bg = 'blue', fg = 'white' , command = self.park )
         self.openFreeWriting    = tk.Button( self.quickButton, text = "Open Free Writing" ,font = ('Arial', 16 ), command= self.freewriting )
         # self.motorSettingButton = tk.Button( self.quickButton , text = "Motor Setting", font = ('Arial', 16 ), command = self.motor.MotorSetting )
-        self.close              = tk.Button( self.quickButton, text = "Close Window",font = ('Arial', 16 ), command = self.closeWin )
+        # self.close              = tk.Button( self.quickButton, text = "Close Window",font = ('Arial', 16 ), command = self.closeWin )
         
         self.EmargencyStop.pack()
         self.Park.pack( pady = 10 )
         self.openFreeWriting.pack( pady = 10 )
         # self.motorSettingButton.pack( pady = 10)
-        self.close.pack( pady = 20 )
+        # self.close.pack( pady = 20 )
 
         # azi,ele input boxes creation
         self.boxFrame           = tk.Frame( self.positions )
@@ -572,11 +524,6 @@ class FrontEnd():
         self.clock_label.config(text=current_time)
         self.root.after(1000, self.update_time)
 
-
-    def closeWin( self ):
-        self.motor.CloseSerial()
-        
-        self.root.destroy()
 
 
     def freewriting(self):
@@ -618,6 +565,7 @@ class FrontEnd():
 
 
     def quit(self):
+        self.motor.CloseSerial()
         self.root.destroy()
 
 
