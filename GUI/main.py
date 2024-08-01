@@ -9,8 +9,8 @@ root = tk.Tk()
 DFSwindow = FrontEnd(root)
 
 
-# python  console creation
-console = tk.Text(root, height = 10 )
+# stdout will be printed in textbox 
+console = tk.Text( root, height = 10, width = 50)
 console.pack()
 consoleButton = tk.Button(root, text = 'output', command = lambda : print("here is stdout") )
 consoleButton.pack()   

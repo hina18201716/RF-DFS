@@ -39,10 +39,6 @@ class MotorControl:
 
         # commands 
         self.commandToSend  = ""
-        self.breakCommand   = 'jog off x y' 
-        self.commandGen     = 'jog abs'
-        self.moveCommandX   = 'jog abs x ' 
-        self.moveCommandY   = 'jog abs y '
         self.startCommand   = ['Prog 0', 'drive on x y']
 
         # error type
@@ -73,7 +69,6 @@ class MotorControl:
             self.readLine()
 
         except:
-            
             self.errorType = self.connectionError[0]
             self.errorMsg = self.connectionError[1]
             self.errorPopup()
@@ -136,8 +131,6 @@ class MotorControl:
         if self.IntUserEle < self.Ele_bound[0] or self.IntUserEle > self.Ele_bound[1]:
             isInRange = False
         if isInRange:
-            # self.commandToSend= self.moveCommandX + self.userAzi 
-            # self.nextCommand = self.moveCommandY + self.userEle
             commandToSend = self.commandGen + " x " + self.userAzi + " y " + self.userEle 
             print("Raange Check cleared")
             self.sendCommand( commandToSend )
@@ -165,9 +158,9 @@ class MotorControl:
                 #     print( "waiting" )
         
                 # if ( self.ser.readline() == b'SYS'  ):
-                #     self.ser.write( self.startCommand[0] )
+                #     self.ser.write( 'prog 0' )
                 # if ( self.ser.readline() == b'P00' ):
-                #     self.ser.write( self.startCommand[1] )      
+                #     self.ser.write( 'drive on x y' )      
                 self.ser.write(b'\r\n')
                 self.ser.write(b'\r\n')
 
@@ -186,7 +179,6 @@ class MotorControl:
 
     def CloseSerial( self ):
         try:
-            
             if not(self.ser.is_open()):
                 self.sendCommand( '' )
                 self.readLine()
@@ -195,13 +187,12 @@ class MotorControl:
             print("closing serial communication")
 
     def EmargencyStop( self ):
-        self.commandToSend = self.breakCommand
         self.sendCommand( "jog off x y" )
         self.readLine()
 
 
     def Park( self ):
-        self.sendCommand( self.commandGen + " x " + str( self.homeAzi ) + " y " + str( self.homeEle ) )
+        self.sendCommand( "jog abs" + " x " + str( self.homeAzi ) + " y " + str( self.homeEle ) )
         self.readLine()
 
 
@@ -351,9 +342,9 @@ class FrontEnd():
     def __init__(self, root):
         """Initializes the top level tkinter interface
         """
-        # root = tk.Tk()
-        # root.title('DFS-control')
+        
         self.root = root
+        self.root.title('RF-DFS')
         vi = VisaControl()
 
         tabControl = ttk.Notebook(root) 
@@ -369,7 +360,7 @@ class FrontEnd():
         self.serialInterface()
         # self.scpiInterface(vi)
         self.root.after(1000,self.update_time )
-        # self.root.mainloop()
+        
 
     def scpiInterface(self, vi):
         """Generates the SCPI communication interface on the developer's tab of choice at tabSelect
@@ -551,17 +542,14 @@ class FrontEnd():
 
 
         # buttons : estop, park, free writing window, close
-        self.EmargencyStop      = tk.Button( self.quickButton, text = "Emargency Stop", font = ('Arial', 16 ) , bg = 'red', fg = 'white' , command= self.Estop )
-        self.Park               = tk.Button( self.quickButton, text = "Park", font = ('Arial', 16) , bg = 'blue', fg = 'white' , command = self.park )
-        self.openFreeWriting    = tk.Button( self.quickButton, text = "Open Free Writing" ,font = ('Arial', 16 ), command= self.freewriting )
-        # self.motorSettingButton = tk.Button( self.quickButton , text = "Motor Setting", font = ('Arial', 16 ), command = self.motor.MotorSetting )
-        # self.close              = tk.Button( self.quickButton, text = "Close Window",font = ('Arial', 16 ), command = self.closeWin )
+        self.EmargencyStop      = tk.Button( self.quickButton, text = "Emargency Stop", font = ('Arial', 16 ) , bg = 'red', fg = 'white' , command= self.Estop ,width= 15 )
+        self.Park               = tk.Button( self.quickButton, text = "Park", font = ('Arial', 16) , bg = 'blue', fg = 'white' , command = self.park, width= 15 )
+        self.openFreeWriting    = tk.Button( self.quickButton, text = "Open Free Writing" ,font = ('Arial', 16 ), command= self.freewriting, width= 15 )
+       
+        self.EmargencyStop.pack( pady = 5 )
+        self.Park.pack( pady = 5 )
+        self.openFreeWriting.pack( pady = 5 )
         
-        self.EmargencyStop.pack()
-        self.Park.pack( pady = 10 )
-        self.openFreeWriting.pack( pady = 10 )
-        # self.motorSettingButton.pack( pady = 10)
-        # self.close.pack( pady = 20 )
 
         # azi,ele input boxes creation
         self.boxFrame           = tk.Frame( self.positions )
