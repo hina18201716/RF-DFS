@@ -14,10 +14,9 @@ class DataManagement():
     
     def printData(self):
         filename = str(self.dataList[0][0])+ ".txt"
-        with open( filename , 'w') as f:
+        with open( filename , 'w' ) as f:
            for vec in self.dataList:
              line = reduce(lambda x,y : str(x) + self.delim + str(y), vec)
-             print(line)
              f.write(line)
              f.write("\n")   
 
