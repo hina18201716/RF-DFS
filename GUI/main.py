@@ -5,17 +5,20 @@ from functions import *
 import sys
 
 
+root = tk.Tk()
+DFSwindow = FrontEnd(root)
 
-DFSwindow = FrontEnd()
 
-# # python  console creation
-# console = tk.Text(DFSwindow.root, height = 10 )
-# console.pack()
-# consoleButton = tk.Button(DFSwindow.root, text = 'output', command = lambda : redirector())
-# consoleButton.pack()   
+# python  console creation
+console = tk.Text(root, height = 10 )
+console.pack()
+consoleButton = tk.Button(root, text = 'output', command = lambda : print("here is stdout") )
+consoleButton.pack()   
 
-# def redirector(inputStr):
-#     console.insert(INSERT, inputStr)
+def redirector(inputStr):
+    console.insert(INSERT, inputStr)
 
-# sys.stdout.write = redirector #whenever sys.stdout.write is called, redirector is called.
+sys.stdout.write = redirector #whenever sys.stdout.write is called, redirector is called.
 
+
+root.mainloop()

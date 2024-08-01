@@ -24,7 +24,7 @@ TIMEOUT_MAX = 25000       # Maximum VISA timeout value
 
 class MotorControl: 
  
-    def __init__(self, Azimuth, Elevation, userAzi = 0, userEle = 0, Azi_bound = [0,360], Ele_bound = [-90,20] ): 
+    def __init__(self, Azimuth, Elevation, userAzi = 0, userEle = 0, Azi_bound = [0,360], Ele_bound = [-90,10] ): 
         self.Azimuth    = Azimuth
         self.Elevation  = Elevation
         self.userAzi    = userAzi
@@ -157,14 +157,13 @@ class MotorControl:
             if self.ser.is_open:
                 self.ser.close()
             try:    
-                self.ser = serial.Serial(port= self.port, baudrate=9600 , bytesize= 8, parity='N', stopbits=1,xonxoff=0)
+                self.ser = serial.Serial(port= self.port, baudrate=9600 , bytesize= 8, parity='N', stopbits=1,xonxoff=0, timeout = 1)
                 
                 print( self.ser.is_open )
 
                 # while( self.ser.readline().isspace() ): 
                 #     print( "waiting" )
-                
-
+        
                 # if ( self.ser.readline() == b'SYS'  ):
                 #     self.ser.write( self.startCommand[0] )
                 # if ( self.ser.readline() == b'P00' ):
@@ -349,15 +348,15 @@ class VisaControl():
         
 
 class FrontEnd():
-    def __init__(self):
+    def __init__(self, root):
         """Initializes the top level tkinter interface
         """
-        self.root = tk.Tk()
-        self.root.title('DFS-control')
-
+        # root = tk.Tk()
+        # root.title('DFS-control')
+        self.root = root
         vi = VisaControl()
 
-        tabControl = ttk.Notebook(self.root) 
+        tabControl = ttk.Notebook(root) 
   
         self.tab1 = ttk.Frame(tabControl) 
         self.tab2 = ttk.Frame(tabControl) 
@@ -368,10 +367,9 @@ class FrontEnd():
         tabControl.pack(expand = 1, fill ="both") 
 
         self.serialInterface()
-        self.scpiInterface(vi)
-        # self.PythonInterface()
-        self.root.after(1000, self.update_time )
-        self.root.mainloop()
+        # self.scpiInterface(vi)
+        self.root.after(1000,self.update_time )
+        # self.root.mainloop()
 
     def scpiInterface(self, vi):
         """Generates the SCPI communication interface on the developer's tab of choice at tabSelect
@@ -449,11 +447,6 @@ class FrontEnd():
         self.enableTermWidget.grid(row = 1, column = 0, pady = 5)
         self.selectTermWidget.grid(row = 2, column = 0, pady = 5)
     
-    # def PythonInterface( self ):
-    #     """Generates the python console window 
-    #     """ 
-    #     pyWindow = tix.Tk()
-    #     pyWindow.mainloop()
 
     def resetWidgetValues(self, vi, event):
         """Event handler to reset widget values to their respective variables
@@ -596,8 +589,6 @@ class FrontEnd():
         current_time = time.strftime("%Y-%m-%d %H:%M:%S")
         self.clock_label.config(text=current_time)
         self.root.after(1000, self.update_time)
-
-
 
     def freewriting(self):
         """Frexible serial communication Window
