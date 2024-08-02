@@ -169,7 +169,7 @@ class MotorControl:
                 
                 print( "communication to motor controller is ready" )
                 
-            except:
+            except: 
                  self.errorType = self.connectionError[0]
                  self.errorMsg = self.connectionError[1]
                  self.errorPopup()
