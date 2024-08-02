@@ -611,13 +611,15 @@ class FrontEnd():
             # position information is not updated now, path from motor servo is needed. 
             newData = [time.strftime("%Y-%m-%d %H:%M:%S") , 0 , 0]
             #
-            
+
             oFile.add( newData )
             newData = []
         
-        saveButton = tk.Button( root, text = "Save", command = saveData )
+        buttonFrame = tk.Frame( root )
+        buttonFrame.pack( side = 'right')
+        saveButton = tk.Button( buttonFrame , text = "Save", font = ('Arial', 10), width=10, command = saveData )
         saveButton.pack()
-        get_logfile = tk.Button( root, text = "Get Log File", command = oFile.printData )
+        get_logfile = tk.Button( buttonFrame, text = "Get Log File", font = ('Arial', 10),width=10, command = oFile.printData )
         get_logfile.pack()
 
         
