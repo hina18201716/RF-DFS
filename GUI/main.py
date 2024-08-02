@@ -8,14 +8,11 @@ import sys
 root = tk.Tk()
 DFSwindow = FrontEnd(root)
 
-
 # stdout will be printed in textbox 
 stdoutFrame = tk.Frame( root )
 stdoutFrame.pack()
 console = tk.Text( stdoutFrame , height = 10, width = 50)
 console.grid( row = 0, column = 0 )
-consoleButton = tk.Button( stdoutFrame, text = 'output', width = 50, command = lambda : print("here is stdout") )
-consoleButton.grid(row = 1, column = 0)   
 
 def redirector(inputStr):
     console.insert(INSERT, inputStr)
