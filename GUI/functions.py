@@ -1,5 +1,3 @@
-# import tkinter as tk
-# from tkinter import ttk
 from tkinter import *
 from tkinter import messagebox
 import tkinter as tk
@@ -10,8 +8,8 @@ import time
 import pyvisa as visa
 from pyvisa import constants
 import sys
-
-
+from data import *
+ 
 # CONSTANTS
 RETURN_ERROR = 1
 RETURN_SUCCESS = 0
@@ -346,7 +344,7 @@ class FrontEnd():
         self.root = root
         self.root.title('RF-DFS')
         vi = VisaControl()
-
+        oFile = DataManagement()
         tabControl = ttk.Notebook(root) 
   
         self.tab1 = ttk.Frame(tabControl) 
@@ -358,8 +356,9 @@ class FrontEnd():
         tabControl.pack(expand = 1, fill ="both") 
 
         self.serialInterface()
+        self.updateOutput( oFile, root )
         # self.scpiInterface(vi)
-        self.root.after(1000,self.update_time )
+        self.root.after(1000, self.update_time )
         
 
     def scpiInterface(self, vi):
@@ -522,26 +521,20 @@ class FrontEnd():
 
         tabSelect = self.tab1   # Select which tab this interface should be placed
 
-        # create motor from class "Motorcontrol"
         self.motor = MotorControl( 0 , 0 )
         
-        # port selection
         ports                   = list( serial.tools.list_ports.comports() ) 
         self.port_selection     = ttk.Combobox( tabSelect , values = ports )
         self.port_selection.grid(row = 0, column= 0 , padx = 20 , pady = 10)
 
-        # time label 
         self.clock_label = tk.Label( tabSelect, font= ('Arial', 14))
         self.clock_label.grid( row= 0, column= 1, padx = 20 , pady = 10 )
 
-        # box for asi ele information 
         self.positions      = tk.LabelFrame( tabSelect, text = "Antenna Position" )
         self.quickButton    = tk.Frame( tabSelect )
         self.positions.grid( row = 1, column = 0 , padx = 20 , pady = 10)
         self.quickButton.grid( row = 1, column= 1 , padx = 20 , pady = 10)
 
-
-        # buttons : estop, park, free writing window, close
         self.EmargencyStop      = tk.Button( self.quickButton, text = "Emargency Stop", font = ('Arial', 16 ) , bg = 'red', fg = 'white' , command= self.Estop ,width= 15 )
         self.Park               = tk.Button( self.quickButton, text = "Park", font = ('Arial', 16) , bg = 'blue', fg = 'white' , command = self.park, width= 15 )
         self.openFreeWriting    = tk.Button( self.quickButton, text = "Open Free Writing" ,font = ('Arial', 16 ), command= self.freewriting, width= 15 )
@@ -550,10 +543,8 @@ class FrontEnd():
         self.Park.pack( pady = 5 )
         self.openFreeWriting.pack( pady = 5 )
         
-
-        # azi,ele input boxes creation
         self.boxFrame           = tk.Frame( self.positions )
-        self.boxFrame.pack( pady = 10)
+        self.boxFrame.pack( pady = 10 )
 
         self.azimuth_label      = tk.Label( self.boxFrame , text = "Azimuth" )
         self.elevation_label    = tk.Label( self.boxFrame , text = "Elevation")
@@ -569,7 +560,6 @@ class FrontEnd():
         self.inputAzimuth.grid( row = 0, column = 2, padx = 10 )
         self.inputElevation.grid( row = 1, column = 2, padx = 10 )
 
-        # enter button creation
         self.printbutton        = tk.Button( self.positions, text = "Enter", command = self.input )
         self.printbutton.pack( padx = 20, pady = 10, side = 'right' )
 
@@ -585,7 +575,6 @@ class FrontEnd():
             portName = self.port_selection.get()
             self.motor.port = portName[:4]
             self.motor.OpenSerial()
-
         self.motor.freeInput()
 
     def Estop(self):
@@ -594,7 +583,6 @@ class FrontEnd():
             portName = self.port_selection.get()
             self.motor.port = portName[:4]
             self.motor.OpenSerial()
-       
         self.motor.EmargencyStop()
     
     def park( self ):
@@ -605,12 +593,10 @@ class FrontEnd():
         self.motor.Park()
 
     def input(self):
-    
         if self.motor.port != self.port_selection.get()[:4]: 
             portName = self.port_selection.get()
             self.motor.port = portName[:4]
             self.motor.OpenSerial()
-
         self.motor.userAzi = self.inputAzimuth.get()
         self.motor.userEle = self.inputElevation.get()
         self.motor.readUserInput()      
@@ -620,4 +606,18 @@ class FrontEnd():
         self.motor.CloseSerial()
         self.root.destroy()
 
+    def updateOutput( self, oFile, root ):
+        def saveData():
+            # position information is not updated now, path from motor servo is needed. 
+            newData = [time.strftime("%Y-%m-%d %H:%M:%S") , 0 , 0]
+            #
+            
+            oFile.add( newData )
+            newData = []
+        
+        saveButton = tk.Button( root, text = "Save", command = saveData )
+        saveButton.pack()
+        get_logfile = tk.Button( root, text = "Get Log File", command = oFile.printData )
+        get_logfile.pack()
 
+        

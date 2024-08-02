@@ -13,7 +13,8 @@ class DataManagement():
         self.dataList.remove(oldData)
     
     def printData(self):
-        filename = str(self.dataList[0][0])+ ".txt"
+        print( "Making File ... " ) 
+        filename = str(self.dataList[0][0])[0:10]+ ".txt"
         with open( filename , 'w' ) as f:
            for vec in self.dataList:
              line = reduce(lambda x,y : str(x) + self.delim + str(y), vec)
@@ -21,11 +22,11 @@ class DataManagement():
              f.write("\n")   
 
 ######## example ##########################            
-user = DataManagement()
-user.add(['august1st', 00, 00 ])
-user.add(['august1st', 10, 00 ])
-user.add(['august1st', 20, 00 ])
-user.add(['august1st', 30, 00 ])
-user.printData()
+# user = DataManagement()
+# user.add(['august1st', 00, 00 ])
+# user.add(['august1st', 10, 00 ])
+# user.add(['august1st', 20, 00 ])
+# user.add(['august1st', 30, 00 ])
+# user.printData()
 #############################################
 
