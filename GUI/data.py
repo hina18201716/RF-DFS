@@ -1,4 +1,5 @@
 from functools import reduce
+import os.path
  
 class DataManagement():
     '''this class contain functions to manage data logging and updating'''
@@ -13,13 +14,25 @@ class DataManagement():
         self.dataList.remove(oldData)
     
     def printData(self):
-        print( "Making File ... " ) 
         filename = str(self.dataList[0][0])[0:10]+ ".txt"
-        with open( filename , 'w' ) as f:
-           for vec in self.dataList:
-             line = reduce(lambda x,y : str(x) + self.delim + str(y), vec)
-             f.write(line)
-             f.write("\n")   
+
+        if os.path.isfile( filename ):
+            print( "Updating a File ... " )     
+            with open( filename , 'a' ) as f: 
+                for vec in self.dataList:
+                    line = reduce(lambda x,y : str(x) + self.delim + str(y), vec)
+                    f.write(line)
+                    f.write("\n")   
+        else: 
+            print( "Making File ... " ) 
+            with open( filename , 'w' ) as f:
+                for vec in self.dataList:
+                    line = reduce(lambda x,y : str(x) + self.delim + str(y), vec)
+                    f.write(line)
+                    f.write("\n")   
+        
+        self.dataList = []
+
 
 ######## example ##########################            
 # user = DataManagement()
@@ -28,5 +41,11 @@ class DataManagement():
 # user.add(['august1st', 20, 00 ])
 # user.add(['august1st', 30, 00 ])
 # user.printData()
+
+# user.add(['august1st', 40, 00 ])
+# user.add(['august1st', 50, 00 ])
+# user.add(['august1st', 60, 00 ])
+# user.printData()
+
 #############################################
 
