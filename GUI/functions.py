@@ -57,15 +57,9 @@ class MotorControl:
         """
         try: 
             
-            # time.sleep(1)
             self.ser.write( str(command).encode('utf-8')+'\r\n'.encode('utf-8') )
-            # time.sleep(1)
-
-            print("command sent \n")
-
-            self.readLine()
-            self.readLine()
-
+           
+            # self.readLine()
         except:
             self.errorType = self.connectionError[0]
             self.errorMsg = self.connectionError[1]
@@ -76,10 +70,11 @@ class MotorControl:
         """Serial Commmunication, read until End Of Line charactor
         """
         try:
-            time.sleep(2)
-            msg = self.ser.readline()
-            # message = msg.decode('utf-8') 
-            print(msg)
+            while( self.ser.in_waiting > 0):
+                print(self.ser.in_waiting)
+                msg = self.ser.readline()
+                print(msg)
+                
         except:
             self.errorType = self.connectionError[0]
             self.errorMsg = self.connectionError[1]
@@ -159,14 +154,9 @@ class MotorControl:
                 #     self.ser.write( 'prog 0' )
                 # if ( self.ser.readline() == b'P00' ):
                 #     self.ser.write( 'drive on x y' )      
-                self.ser.write(b'\r\n')
-                self.ser.write(b'\r\n')
-
-                    
+                self.sendCommand('\n')
+                time.sleep(3) #needed to let arduino to send it back 
                 self.readLine()
-                self.readLine()
-
-                
                 print( "communication to motor controller is ready" )
                 
             except: 
@@ -175,14 +165,11 @@ class MotorControl:
                  self.errorPopup()
 
 
-    def CloseSerial( self ):
-        try:
-            if not(self.ser.is_open()):
-                self.sendCommand( '' )
-                self.readLine()
-                self.ser.close()
-        except: 
-            print("closing serial communication")
+    def CloseSerial( self ):        
+        self.sendCommand( 'drive off x y' )
+        self.readLine()
+        self.ser.close()
+
 
     def EmargencyStop( self ):
         self.sendCommand( "jog off x y" )
@@ -199,7 +186,7 @@ class MotorControl:
 
             line = inBox.get()
             self.sendCommand( line )
-            # update_text()
+            update_text()
         
         def update_text(): 
             try:
@@ -230,7 +217,7 @@ class MotorControl:
         enterButton.pack( side = 'right' ,padx = 10, pady = 5)
         self.returnLineBox.pack( padx = 10, pady = 5 )
     
-        # freeWriting.after(1000, update_text)
+        freeWriting.after(1000, update_text)
         freeWriting.mainloop()
         
 class VisaControl():
@@ -359,7 +346,17 @@ class FrontEnd():
         self.updateOutput( oFile, root )
         # self.scpiInterface(vi)
         self.root.after(1000, self.update_time )
-        
+    
+    def on_closing( self ):
+        """ Ask to close serial communication when 'X' button is pressed """
+        SaveCheck = messagebox.askokcancel( title = "Window closing", message = "Do you want to close communication to the motor?" )
+        if SaveCheck is True:      
+            while (self.motor.ser.is_open):
+                self.motor.CloseSerial()
+        else:
+            pass
+    
+        self.root.quit()
 
     def scpiInterface(self, vi):
         """Generates the SCPI communication interface on the developer's tab of choice at tabSelect
@@ -525,13 +522,13 @@ class FrontEnd():
         
         ports                   = list( serial.tools.list_ports.comports() ) 
         self.port_selection     = ttk.Combobox( tabSelect , values = ports )
-        self.port_selection.grid(row = 0, column= 0 , padx = 20 , pady = 10)
+        self.port_selection.grid(row = 0, column= 0 , padx = 20 , pady = 10, sticky= NW )
 
-        self.clock_label = tk.Label( tabSelect, font= ('Arial', 14))
-        self.clock_label.grid( row= 0, column= 1, padx = 20 , pady = 10 )
+        self.clock_label        = tk.Label( tabSelect, font= ('Arial', 14))
+        self.clock_label.grid( row= 0, column= 1, padx = 20 , pady = 10, sticky= NE  )
 
-        self.positions      = tk.LabelFrame( tabSelect, text = "Antenna Position" )
-        self.quickButton    = tk.Frame( tabSelect )
+        self.positions          = tk.LabelFrame( tabSelect, text = "Antenna Position" )
+        self.quickButton        = tk.Frame( tabSelect )
         self.positions.grid( row = 1, column = 0 , padx = 20 , pady = 10)
         self.quickButton.grid( row = 1, column= 1 , padx = 20 , pady = 10)
 
@@ -562,6 +559,7 @@ class FrontEnd():
 
         self.printbutton        = tk.Button( self.positions, text = "Enter", command = self.input )
         self.printbutton.pack( padx = 20, pady = 10, side = 'right' )
+
 
     def update_time( self ):
         current_time = time.strftime("%Y-%m-%d %H:%M:%S")
