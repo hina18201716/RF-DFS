@@ -5,17 +5,19 @@ from functions import *
 import sys
 
 
+root = tk.Tk()
+DFSwindow = FrontEnd(root)
 
-DFSwindow = FrontEnd()
+# stdout will be printed in textbox 
+stdoutFrame = tk.Frame( root )
+stdoutFrame.pack()
+console = tk.Text( stdoutFrame , height = 10, width = 50)
+console.grid( row = 0, column = 0 )
 
-# # python  console creation
-# console = tk.Text(DFSwindow.root, height = 10 )
-# console.pack()
-# consoleButton = tk.Button(DFSwindow.root, text = 'output', command = lambda : redirector())
-# consoleButton.pack()   
+def redirector(inputStr):
+    console.insert(INSERT, inputStr)
 
-# def redirector(inputStr):
-#     console.insert(INSERT, inputStr)
+sys.stdout.write = redirector #whenever sys.stdout.write is called, redirector is called.
 
-# sys.stdout.write = redirector #whenever sys.stdout.write is called, redirector is called.
-
+root.protocol("WM_DELETE_WINDOW", DFSwindow.on_closing )
+root.mainloop()
