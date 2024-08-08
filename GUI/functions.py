@@ -9,6 +9,7 @@ import pyvisa as visa
 from pyvisa import constants
 import sys
 from data import *
+import opcodes
  
 # CONSTANTS
 RETURN_ERROR = 1
@@ -344,7 +345,7 @@ class FrontEnd():
 
         self.serialInterface()
         self.updateOutput( oFile, root )
-        # self.scpiInterface(vi)
+        self.scpiInterface(vi)
         self.root.after(1000, self.update_time )
     
     def on_closing( self ):
